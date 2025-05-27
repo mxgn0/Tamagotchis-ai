@@ -63,4 +63,16 @@ function askGotchi() {
   getPetAdvice(hunger, mood, energy);
 }
 
+//proxy verbinden
+async function askGotchi() {
+  const response = await fetch("https://openai-proxy-git-main-mxgns-projects.vercel.app/api/gpt", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ hunger, mood, energy })
+  });
+
+  const data = await response.json();
+  document.getElementById("chat").textContent = data.reply;
+}
+
 update();
