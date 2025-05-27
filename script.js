@@ -65,7 +65,7 @@ function askGotchi() {
 
 //proxy verbinden
 async function askGotchi() {
-  const response = await fetch("https://openai-proxy-git-main-mxgns-projects.vercel.app/api/gpt", {
+  const response = await fetch("https://openai-proxy-swart-one.vercel.app/api/gpt", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ hunger, mood, energy })
