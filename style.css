@@ -20,3 +20,11 @@ button {
   border: 1px solid #0f0;
   cursor: pointer;
 }
+.chatbox {
+  margin: 20px auto;
+  max-width: 300px;
+  background: #222;
+  padding: 10px;
+  border: 1px solid #0f0;
+  font-style: italic;
+}
