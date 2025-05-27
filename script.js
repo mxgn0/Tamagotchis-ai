@@ -38,4 +38,26 @@ const timer = setInterval(() => {
   update();
 }, 3000);
 
+//chat gpt chat
+async function getPetAdvice(hunger, mood, energy) {
+  const prompt = `Das Haustier hat Hunger: ${hunger}, Laune: ${mood}, Energie: ${energy}. Was braucht es am meisten? Antworte so, als wärst du das Haustier.`;
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer DEIN_API_KEY_HIER"
+    },
+    body: JSON.stringify({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.7
+    })
+  });
+
+  const data = await response.json();
+  const message = data.choices[0].message.content;
+  document.getElementById("chat").textContent = message;
+}
+
 update();
