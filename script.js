@@ -59,5 +59,8 @@ async function getPetAdvice(hunger, mood, energy) {
   const message = data.choices[0].message.content;
   document.getElementById("chat").textContent = message;
 }
+function askGotchi() {
+  getPetAdvice(hunger, mood, energy);
+}
 
 update();
