@@ -40,21 +40,27 @@ function sleep() {
 
 // GPT-Chat-Funktion
 async function askGotchi() {
-  const response = await fetch("https://openai-proxy-swart-one.vercel.app/api/gpt", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ hunger, mood, energy })
-  });
+  try {
+    const response = await fetch("https://openai-proxy-swart-one.vercel.app/api/gpt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        hunger: hunger,
+        mood: mood,
+        energy: energy
+      })
+    });
 
-  const data = await response.json();
-  
-  console.log("GPT antwortet (roh):", data);
+    const data = await response.json();
 
-  const reply = data.choices?.[0]?.message?.content?.trim() || "GPT hat nichts gesagt 😕";
+    console.log("GPT Antwort (roh):", data); // WICHTIG!
 
-  // Versuche verschiedene Zugriffspfade
+    // Debug-Ausgabe auch als Pop-up
+    alert("GPT RAW: " + JSON.stringify(data));
+
+    // Versuche verschiedene Zugriffspfade
     const reply =
       data?.reply || // falls dein Proxy `reply:` zurückgibt
       data?.choices?.[0]?.message?.content?.trim() || // direkt aus GPT-Rohstruktur
@@ -67,7 +73,7 @@ async function askGotchi() {
     console.error("Fehler bei GPT-Anfrage:", error);
     document.getElementById("chat").textContent = "Ich erreiche GPT gerade nicht.";
   }
-
+}
   // 🗣️ Sprachwiedergabe
   speak(reply);
 }
