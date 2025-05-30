@@ -49,9 +49,9 @@ async function askGotchi() {
   });
 
   const data = await response.json();
-  console.log("GPT antwortet:", data); // 🔍 wichtig!
+console.log("GPT antwortet (roh):", data);
 
-  const reply = data.reply || "Ich konnte nichts sagen 😕";
+const reply = data.choices?.[0]?.message?.content?.trim() || "GPT hat nichts gesagt 😕";
 
   // 🧠 Hier wird das DOM geupdatet:
   document.getElementById("chat").textContent = reply;
