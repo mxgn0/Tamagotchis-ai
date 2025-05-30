@@ -5,9 +5,9 @@ let energy = 50;
 
 // Anzeige aktualisieren
 function update() {
-  document.getElementById('hunger').textContent = hunger;
-  document.getElementById('mood').textContent = mood;
-  document.getElementById('energy').textContent = energy;
+  document.getElementById("hunger").textContent = Math.round(hunger);
+document.getElementById("mood").textContent = Math.round(mood);
+document.getElementById("energy").textContent = Math.round(energy);
 
   if (hunger >= 100 || mood <= 0 || energy <= 0) {
     document.getElementById('pet').textContent = "(x_x)";
@@ -65,25 +65,43 @@ function speak(text) {
   }
 }
 
+//töne
+function playBeep(type = "default") {
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  oscillator.type = "sine";
+
+  if (type === "eat") oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+  else if (type === "play") oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+  else if (type === "sleep") oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+  else oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+
+  oscillator.connect(gain);
+  gain.connect(audioCtx.destination);
+  gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 0.15); // nur 150ms lang
+}
 // Aktionen
 function feed() {
-  hunger = Math.max(0, hunger - 10);
-  speak("Danke fürs Füttern!");
-  update();
+  hunger = Math.max(0, hunger - 20);
+  playBeep("eat");
+  updateStats();
 }
 
 function play() {
-  mood = Math.min(100, mood + 10);
-  energy = Math.max(0, energy - 10);
-  speak("Juhu, das macht Spaß!");
-  update();
+  mood = Math.min(100, mood + 20);
+  playBeep("play");
+  updateStats();
 }
 
 function sleep() {
   energy = Math.min(100, energy + 20);
-  hunger = Math.min(100, hunger + 10);
-  speak("Gute Nacht...");
-  update();
+  playBeep("sleep");
+  updateStats();
 }
 
 // Zustand verschlechtert sich über Zeit
