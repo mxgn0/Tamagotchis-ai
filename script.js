@@ -35,7 +35,7 @@ async function askGotchi() {
     const data = await response.json();
 
     console.log("GPT Antwort (roh):", data);
-    alert("GPT Rohdaten: " + JSON.stringify(data));
+    //alert("GPT Rohdaten: " + JSON.stringify(data));
 
     const reply =
       data?.reply || // falls Proxy schon extrahiert
@@ -53,9 +53,16 @@ async function askGotchi() {
 
 // Sprachausgabe
 function speak(text) {
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "de-DE";
-  window.speechSynthesis.speak(utterance);
+  try {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "de-DE";
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    window.speechSynthesis.cancel(); // Stopp vorherige Ausgabe
+    window.speechSynthesis.speak(utterance);
+  } catch (e) {
+    console.warn("Sprechen fehlgeschlagen:", e);
+  }
 }
 
 // Aktionen
