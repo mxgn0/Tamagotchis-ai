@@ -4,10 +4,10 @@ let mood = 50;
 let energy = 50;
 
 // Anzeige aktualisieren
-function update() {
+function updateStats() {
   document.getElementById("hunger").textContent = Math.round(hunger);
-document.getElementById("mood").textContent = Math.round(mood);
-document.getElementById("energy").textContent = Math.round(energy);
+  document.getElementById("mood").textContent = Math.round(mood);
+  document.getElementById("energy").textContent = Math.round(energy);
 
   if (hunger >= 100 || mood <= 0 || energy <= 0) {
     document.getElementById('pet').textContent = "(x_x)";
@@ -17,7 +17,7 @@ document.getElementById("energy").textContent = Math.round(energy);
   }
 }
 
-// GPT-Anfrage mit Debug-Ausgabe
+// GPT-Anfrage
 async function askGotchi() {
   const chatBox = document.getElementById("chat");
   const loadingBar = document.getElementById("loadingBar");
@@ -58,14 +58,14 @@ function speak(text) {
     utterance.lang = "de-DE";
     utterance.rate = 1;
     utterance.pitch = 1;
-    window.speechSynthesis.cancel(); // Stopp vorherige Ausgabe
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
   } catch (e) {
     console.warn("Sprechen fehlgeschlagen:", e);
   }
 }
 
-//töne
+// Töne
 function playBeep(type = "default") {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const oscillator = audioCtx.createOscillator();
@@ -83,8 +83,9 @@ function playBeep(type = "default") {
   gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
 
   oscillator.start();
-  oscillator.stop(audioCtx.currentTime + 0.15); // nur 150ms lang
+  oscillator.stop(audioCtx.currentTime + 0.15);
 }
+
 // Aktionen
 function feed() {
   hunger = Math.max(0, hunger - 20);
@@ -104,7 +105,8 @@ function sleep() {
   updateStats();
 }
 
-setInterval(() => {
+// Zustand verschlechtert sich über Zeit
+const timer = setInterval(() => {
   hunger = Math.min(100, hunger + 0.6);
   mood = Math.max(0, mood - 0.5);
   energy = Math.max(0, energy - 0.4);
@@ -112,4 +114,4 @@ setInterval(() => {
 }, 5000);
 
 // Initial anzeigen
-update();
+updateStats();
