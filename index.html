@@ -8,23 +8,37 @@
 </head>
 <body>
   <h1>Gotchi-AI</h1>
-  <div id="pet">(^_^)</div>
+
+  <!-- Tamagotchi Anzeige -->
+  <div id="pet">🥚</div>
+
+  <!-- Chat-Anzeige -->
   <div id="chat" class="chatbox">Ich sag dir gleich, wie's mir geht...</div>
+
+  <!-- Ladeanzeige -->
   <div id="loading" class="loading" style="display: none;">🤔 Ich überlege...</div>
   <div id="loadingBar" class="loading-bar-container" style="display: none;">
-  <div class="loading-bar"></div>
-</div>
-<button onclick="askGotchi()">Was brauchst du?</button>
+    <div class="loading-bar"></div>
+  </div>
+
+  <!-- Button zum Fragen -->
+  <button onclick="askGotchi()">Was brauchst du?</button>
+
+  <!-- Werte -->
   <div class="stats">
     <p>Hunger: <span id="hunger">50</span></p>
     <p>Laune: <span id="mood">50</span></p>
     <p>Energie: <span id="energy">50</span></p>
   </div>
+
+  <!-- Interaktion -->
   <div class="buttons">
     <button onclick="feed()">Füttern</button>
     <button onclick="play()">Spielen</button>
     <button onclick="sleep()">Schlafen</button>
   </div>
+
+  <!-- Skript -->
   <script src="script.js"></script>
 </body>
 </html>
