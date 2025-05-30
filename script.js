@@ -49,12 +49,24 @@ async function askGotchi() {
   });
 
   const data = await response.json();
-console.log("GPT antwortet (roh):", data);
+  
+  console.log("GPT antwortet (roh):", data);
 
-const reply = data.choices?.[0]?.message?.content?.trim() || "GPT hat nichts gesagt 😕";
+  const reply = data.choices?.[0]?.message?.content?.trim() || "GPT hat nichts gesagt 😕";
 
-  // 🧠 Hier wird das DOM geupdatet:
-  document.getElementById("chat").textContent = reply;
+  // Versuche verschiedene Zugriffspfade
+    const reply =
+      data?.reply || // falls dein Proxy `reply:` zurückgibt
+      data?.choices?.[0]?.message?.content?.trim() || // direkt aus GPT-Rohstruktur
+      "GPT hat nichts gesagt 😕";
+
+    document.getElementById("chat").textContent = reply;
+    speak(reply);
+
+  } catch (error) {
+    console.error("Fehler bei GPT-Anfrage:", error);
+    document.getElementById("chat").textContent = "Ich erreiche GPT gerade nicht.";
+  }
 
   // 🗣️ Sprachwiedergabe
   speak(reply);
