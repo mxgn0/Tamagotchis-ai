@@ -3,6 +3,38 @@ let hunger = 50;
 let mood = 50;
 let energy = 50;
 
+// Gotchi-Typ festlegen
+let gotchiType = localStorage.getItem("gotchiType");
+if (!gotchiType) {
+  const types = ["Feuer", "Wasser", "Pflanze"];
+  gotchiType = types[Math.floor(Math.random() * types.length)];
+  localStorage.setItem("gotchiType", gotchiType);
+}
+
+// Hat es schon geschlüpft?
+const petElement = document.getElementById("pet");
+const hatched = localStorage.getItem("gotchiHatched");
+
+if (!hatched) {
+  petElement.textContent = "🥚";
+  setTimeout(() => {
+    petElement.textContent = getGotchiFace(gotchiType);
+    localStorage.setItem("gotchiHatched", "true");
+  }, 3000);
+} else {
+  petElement.textContent = getGotchiFace(gotchiType);
+}
+
+// Zeigt das Gesicht je nach Typ
+function getGotchiFace(type) {
+  switch (type) {
+    case "Feuer": return "🔥(•‿•)";
+    case "Wasser": return "💧(◕‿◕)";
+    case "Pflanze": return "🌿(＾▽＾)";
+    default: return "(^_^)";
+  }
+}
+
 // Anzeige aktualisieren
 function updateStats() {
   document.getElementById("hunger").textContent = Math.round(hunger);
@@ -115,3 +147,11 @@ const timer = setInterval(() => {
 
 // Initial anzeigen
 updateStats();
+
+// Doppeltipp-Zoom auf iOS blockieren
+let lastTouchTime = 0;
+document.addEventListener('touchstart', function (e) {
+  const currentTime = new Date().getTime();
+  if (currentTime - lastTouchTime <= 300) e.preventDefault();
+  lastTouchTime = currentTime;
+}, { passive: false });
