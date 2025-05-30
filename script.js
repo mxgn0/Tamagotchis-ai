@@ -19,6 +19,13 @@ function update() {
 
 // GPT-Anfrage mit Debug-Ausgabe
 async function askGotchi() {
+  const chatBox = document.getElementById("chat");
+  const loading = document.getElementById("loading");
+
+  // Ladeanzeige zeigen
+  loading.style.display = "block";
+  chatBox.textContent = "";
+
   try {
     const response = await fetch("https://openai-proxy-swart-one.vercel.app/api/gpt", {
       method: "POST",
@@ -33,21 +40,22 @@ async function askGotchi() {
     });
 
     const data = await response.json();
-
     console.log("GPT Antwort (roh):", data);
-    //alert("GPT Rohdaten: " + JSON.stringify(data));
 
     const reply =
-      data?.reply || // falls Proxy schon extrahiert
-      data?.choices?.[0]?.message?.content?.trim() || // direkt aus GPT
+      data?.reply ||
+      data?.choices?.[0]?.message?.content?.trim() ||
       "GPT hat nichts gesagt 😕";
 
-    document.getElementById("chat").textContent = reply;
+    chatBox.textContent = reply;
     speak(reply);
 
   } catch (error) {
     console.error("Fehler bei GPT-Anfrage:", error);
-    document.getElementById("chat").textContent = "Ich erreiche GPT gerade nicht.";
+    chatBox.textContent = "Ich erreiche GPT gerade nicht.";
+  } finally {
+    // Ladeanzeige ausblenden
+    loading.style.display = "none";
   }
 }
 
