@@ -1,9 +1,9 @@
-// Zustand des Tamagotchis
+// Anfangszustände
 let hunger = 50;
 let mood = 50;
 let energy = 50;
 
-// Update-Funktion für Anzeigen
+// Anzeige aktualisieren
 function update() {
   document.getElementById('hunger').textContent = hunger;
   document.getElementById('mood').textContent = mood;
@@ -15,6 +15,47 @@ function update() {
     speak("Ich bin gestorben...");
     alert("Dein Gotchi ist gestorben...");
   }
+}
+
+// GPT-Anfrage mit Debug-Ausgabe
+async function askGotchi() {
+  try {
+    const response = await fetch("https://openai-proxy-swart-one.vercel.app/api/gpt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        hunger: hunger,
+        mood: mood,
+        energy: energy
+      })
+    });
+
+    const data = await response.json();
+
+    console.log("GPT Antwort (roh):", data);
+    alert("GPT Rohdaten: " + JSON.stringify(data));
+
+    const reply =
+      data?.reply || // falls Proxy schon extrahiert
+      data?.choices?.[0]?.message?.content?.trim() || // direkt aus GPT
+      "GPT hat nichts gesagt 😕";
+
+    document.getElementById("chat").textContent = reply;
+    speak(reply);
+
+  } catch (error) {
+    console.error("Fehler bei GPT-Anfrage:", error);
+    document.getElementById("chat").textContent = "Ich erreiche GPT gerade nicht.";
+  }
+}
+
+// Sprachausgabe
+function speak(text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "de-DE";
+  window.speechSynthesis.speak(utterance);
 }
 
 // Aktionen
@@ -38,54 +79,7 @@ function sleep() {
   update();
 }
 
-// GPT-Chat-Funktion
-async function askGotchi() {
-  try {
-    const response = await fetch("https://openai-proxy-swart-one.vercel.app/api/gpt", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        hunger: hunger,
-        mood: mood,
-        energy: energy
-      })
-    });
-
-    const data = await response.json();
-
-    console.log("GPT Antwort (roh):", data); // WICHTIG!
-
-    // Debug-Ausgabe auch als Pop-up
-    alert("GPT RAW: " + JSON.stringify(data));
-
-    // Versuche verschiedene Zugriffspfade
-    const reply =
-      data?.reply || // falls dein Proxy `reply:` zurückgibt
-      data?.choices?.[0]?.message?.content?.trim() || // direkt aus GPT-Rohstruktur
-      "GPT hat nichts gesagt 😕";
-
-    document.getElementById("chat").textContent = reply;
-    speak(reply);
-
-  } catch (error) {
-    console.error("Fehler bei GPT-Anfrage:", error);
-    document.getElementById("chat").textContent = "Ich erreiche GPT gerade nicht.";
-  }
-}
-  // 🗣️ Sprachwiedergabe
-  speak(reply);
-}
-
-// Sprachausgabe-Funktion (Text-to-Speech)
-function speak(text) {
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'de-DE';
-  window.speechSynthesis.speak(utterance);
-}
-
-// Timer: Zustände verschlechtern sich
+// Zustand verschlechtert sich über Zeit
 const timer = setInterval(() => {
   hunger += 5;
   mood -= 2;
@@ -93,5 +87,5 @@ const timer = setInterval(() => {
   update();
 }, 5000);
 
-// Initialer Aufruf
+// Initial anzeigen
 update();
