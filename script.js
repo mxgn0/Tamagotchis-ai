@@ -20,10 +20,9 @@ function update() {
 // GPT-Anfrage mit Debug-Ausgabe
 async function askGotchi() {
   const chatBox = document.getElementById("chat");
-  const loading = document.getElementById("loading");
+  const loadingBar = document.getElementById("loadingBar");
 
-  // Ladeanzeige zeigen
-  loading.style.display = "block";
+  loadingBar.style.display = "block";
   chatBox.textContent = "";
 
   try {
@@ -32,16 +31,10 @@ async function askGotchi() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        hunger: hunger,
-        mood: mood,
-        energy: energy
-      })
+      body: JSON.stringify({ hunger, mood, energy })
     });
 
     const data = await response.json();
-    console.log("GPT Antwort (roh):", data);
-
     const reply =
       data?.reply ||
       data?.choices?.[0]?.message?.content?.trim() ||
@@ -54,8 +47,7 @@ async function askGotchi() {
     console.error("Fehler bei GPT-Anfrage:", error);
     chatBox.textContent = "Ich erreiche GPT gerade nicht.";
   } finally {
-    // Ladeanzeige ausblenden
-    loading.style.display = "none";
+    loadingBar.style.display = "none";
   }
 }
 
