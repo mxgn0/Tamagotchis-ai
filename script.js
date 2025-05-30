@@ -104,13 +104,12 @@ function sleep() {
   updateStats();
 }
 
-// Zustand verschlechtert sich über Zeit
-const timer = setInterval(() => {
-  hunger = Math.min(100, hunger + 0.3);  // langsamerer Anstieg
-  mood = Math.max(0, mood - 0.2);
-  energy = Math.max(0, energy - 0.2);
+setInterval(() => {
+  hunger = Math.min(100, hunger + 0.6);
+  mood = Math.max(0, mood - 0.5);
+  energy = Math.max(0, energy - 0.4);
   updateStats();
-}, 8000); // alle 8 Sekunden statt 5
+}, 5000);
 
 // Initial anzeigen
 update();
