@@ -49,8 +49,15 @@ async function askGotchi() {
   });
 
   const data = await response.json();
-  document.getElementById("chat").textContent = data.reply;
-  speak(data.reply);
+  console.log("GPT antwortet:", data); // 🔍 wichtig!
+
+  const reply = data.reply || "Ich konnte nichts sagen 😕";
+
+  // 🧠 Hier wird das DOM geupdatet:
+  document.getElementById("chat").textContent = reply;
+
+  // 🗣️ Sprachwiedergabe
+  speak(reply);
 }
 
 // Sprachausgabe-Funktion (Text-to-Speech)
