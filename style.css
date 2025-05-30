@@ -28,3 +28,16 @@ button {
   border: 1px solid #0f0;
   font-style: italic;
 }
+.loading {
+  text-align: center;
+  color: #0f0;
+  margin-top: 10px;
+  font-style: italic;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
