@@ -1,52 +1,54 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Gotchi-AI</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>Gotchi-AI</h1>
 
-  <!-- Tamagotchi Anzeige -->
+  <!-- 🥚 Tamagotchi-Anzeige -->
   <div id="pet">🥚</div>
 
-  <!-- Chat-Anzeige -->
+  <!-- 💬 Chat-Anzeige -->
   <div id="chat" class="chatbox">Ich sag dir gleich, wie's mir geht...</div>
 
-  <!-- Ladeanzeige -->
+  <!-- ⏳ Ladeanzeige -->
   <div id="loading" class="loading" style="display: none;">🤔 Ich überlege...</div>
   <div id="loadingBar" class="loading-bar-container" style="display: none;">
     <div class="loading-bar"></div>
   </div>
 
-  <!-- Button zum Fragen -->
-  <button onclick="askGotchi()">Was brauchst du?</button>
+  <!-- ❓ Button für AI -->
+  <button onclick="askGotchi()">Wie geht’s dir?</button>
 
-  <!-- Werte -->
+  <!-- 📊 Statuswerte -->
   <div class="stats">
     <p>Hunger: <span id="hunger">50</span></p>
     <p>Laune: <span id="mood">50</span></p>
     <p>Energie: <span id="energy">50</span></p>
   </div>
 
+  <!-- ⏱️ Level, XP & Alter -->
   <div class="status">
-  <p>Alter: <span id="ageDisplay">0 Tage, 0 Minuten</span></p>
-  <p>Level: <span id="level">1</span></p>
-  <div class="progress-bar-container">
-    <div class="progress-bar" id="progressBar"></div>
+    <p>Alter: <span id="ageDisplay">0 Tage, 0 Minuten</span></p>
+    <p>Level: <span id="level">1</span></p>
+    <p>XP: <span id="xp">0</span></p>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
   </div>
-</div>
 
-  <!-- Interaktion -->
+  <!-- 🎮 Interaktionen -->
   <div class="buttons">
     <button onclick="feed()">Füttern</button>
     <button onclick="play()">Spielen</button>
     <button onclick="sleep()">Schlafen</button>
   </div>
 
-  <!-- Skript -->
+  <!-- 📜 Skript -->
   <script src="script.js"></script>
 </body>
 </html>
