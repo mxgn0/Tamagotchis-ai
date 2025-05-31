@@ -4,6 +4,11 @@ let mood = Number(localStorage.getItem("gotchiMood")) || 50;
 let energy = Number(localStorage.getItem("gotchiEnergy")) || 50;
 let level = Number(localStorage.getItem("gotchiLevel")) || 1;
 let age = Number(localStorage.getItem("gotchiAge")) || 0;
+let startTime = Number(localStorage.getItem("gotchiStartTime")) || Date.now();
+localStorage.setItem("gotchiStartTime", startTime);
+
+// 🎨 Farben pro Level
+const levelColors = ["#4caf50", "#2196f3", "#ff9800", "#e91e63", "#9c27b0"];
 
 // 🥚 Typ bestimmen
 let gotchiType = localStorage.getItem("gotchiType");
@@ -21,13 +26,8 @@ if (lastActive) {
   hunger = Math.min(100, hunger + secondsPassed * 0.12);
   mood = Math.max(0, mood - secondsPassed * 0.1);
   energy = Math.max(0, energy - secondsPassed * 0.08);
-  const newAge = age + Math.floor(secondsPassed / 5);
-  const levelUps = Math.floor(newAge / 100) - Math.floor(age / 100);
-  if (levelUps > 0) {
-    level += levelUps;
-    speak(`Level up! Ich bin jetzt Level ${level}`);
-  }
-  age = newAge;
+  age += Math.floor(secondsPassed / 5);
+  level = Math.floor(age / 100) + 1;
 }
 
 // 🐣 Hatch-Logik
@@ -50,7 +50,7 @@ if (!hatched) {
   petElement.textContent = getGotchiFace(gotchiType);
 }
 
-// 😺 Aussehen nach Typ
+// 😺 Gesicht
 function getGotchiFace(type) {
   switch (type) {
     case "Feuer": return "🔥(•‿•)";
@@ -60,23 +60,41 @@ function getGotchiFace(type) {
   }
 }
 
-// 🧮 Anzeige
+// 📊 Anzeige
 function updateStats() {
   document.getElementById("hunger").textContent = Math.round(hunger);
   document.getElementById("mood").textContent = Math.round(mood);
   document.getElementById("energy").textContent = Math.round(energy);
-  const levelDisplay = document.getElementById("level");
-  if (levelDisplay) levelDisplay.textContent = level;
 
+  // Alter und Levelanzeige
+  const ageMinutes = Math.floor((Date.now() - startTime) / 60000);
+  const ageDays = Math.floor(ageMinutes / 1440);
+  const ageMins = ageMinutes % 1440;
+  document.getElementById("ageDisplay").textContent = `${ageDays} Tage, ${ageMins} Min`;
+
+  const levelDisplay = document.getElementById("level");
+  levelDisplay.textContent = level;
+
+  // Fortschritt zum nächsten Level
+  const progress = age % 100;
+  const progressBar = document.getElementById("levelBar");
+  progressBar.style.width = `${progress}%`;
+
+  // Farbe nach Level
+  const color = levelColors[(level - 1) % levelColors.length];
+  petElement.style.color = color;
+  progressBar.style.backgroundColor = color;
+
+  // Tot?
   if (hunger >= 100 || mood <= 0 || energy <= 0) {
-    document.getElementById('pet').textContent = "(x_x)";
+    petElement.textContent = "(x_x)";
     clearInterval(timer);
     speak("Ich bin gestorben...");
     alert("Dein Gotchi ist gestorben...");
   }
 }
 
-// 🗣 GPT-Anfrage
+// 🗣 GPT
 async function askGotchi() {
   const chatBox = document.getElementById("chat");
   const loadingBar = document.getElementById("loadingBar");
@@ -116,7 +134,7 @@ function speak(text) {
   }
 }
 
-// 🔔 Töne
+// 🎵 Ton
 function playBeep(type = "default") {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const oscillator = audioCtx.createOscillator();
@@ -134,7 +152,7 @@ function playBeep(type = "default") {
   oscillator.stop(audioCtx.currentTime + 0.15);
 }
 
-// 🍎 Aktionen
+// 🍎 Interaktionen
 function feed() {
   hunger = Math.max(0, hunger - 20);
   playBeep("eat");
@@ -151,34 +169,31 @@ function sleep() {
   updateStats();
 }
 
-// ⏳ Hintergrundverlauf
+// ⏳ Timer
 const timer = setInterval(() => {
   hunger = Math.min(100, hunger + 0.6);
   mood = Math.max(0, mood - 0.5);
   energy = Math.max(0, energy - 0.4);
-  if (hunger < 100 && mood > 0 && energy > 0) {
-    age += 1;
-    if (age % 100 === 0) {
-      level += 1;
-      speak(`Level up! Ich bin jetzt Level ${level}`);
-    }
-  }
+  age += 1;
+  level = Math.floor(age / 100) + 1;
+
   localStorage.setItem("gotchiHunger", hunger);
   localStorage.setItem("gotchiMood", mood);
   localStorage.setItem("gotchiEnergy", energy);
   localStorage.setItem("gotchiLevel", level);
   localStorage.setItem("gotchiAge", age);
   localStorage.setItem("lastActiveTime", Date.now());
+
   updateStats();
 }, 5000);
 
-// 👁 Initial anzeigen
-updateStats();
-
-// 📱 iOS-Zoom blockieren
+// 🚫 iOS Doppeltipp-Zoom
 let lastTouchTime = 0;
 document.addEventListener('touchstart', function (e) {
   const currentTime = new Date().getTime();
   if (currentTime - lastTouchTime <= 300) e.preventDefault();
   lastTouchTime = currentTime;
 }, { passive: false });
+
+// 🎬 Initial
+updateStats();
