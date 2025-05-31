@@ -198,6 +198,7 @@ function feed() {
   hunger = Math.max(0, hunger - 20);
   playBeep("eat");
   updateStats();
+  localStorage.setItem("lastCareTime", Date.now());
 }
 
 function play() {
@@ -205,6 +206,7 @@ function play() {
   mood = Math.min(100, mood + 20);
   playBeep("play");
   updateStats();
+  localStorage.setItem("lastCareTime", Date.now());
 }
 
 function sleep() {
@@ -212,6 +214,7 @@ function sleep() {
   energy = Math.min(100, energy + 20);
   playBeep("sleep");
   updateStats();
+  localStorage.setItem("lastCareTime", Date.now());
 }
 
 // ⏳ Hintergrundverlauf
