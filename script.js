@@ -114,7 +114,7 @@ if (hunger >= 100 || mood <= 0 || energy <= 0 || hoursSinceCare > 36) {
   clearInterval(timer);
   speak("Ich bin gestorben...");
   alert("Dein Gotchi ist gestorben...");
-} else if (hunger > 85 || energy < 20 || hoursSinceCare > 24) {
+} else if (hunger > 85 || energy < 20 || hoursSinceCare > 1) {
   petElement.textContent = "(ಠ_ಠ)";
 } else {
   petElement.textContent = getGotchiFace(gotchiType);
