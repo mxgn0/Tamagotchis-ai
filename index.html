@@ -31,15 +31,13 @@
     <p>Energie: <span id="energy">50</span></p>
   </div>
 
-<!-- ⏱️ Level & Alter -->
+<!-- ⏱️ Level, XP & Alter -->
 <div class="status">
-  <p>Alter: <span id="ageDisplay">0 Tage, 0 Minuten</span></p>
+  <p>Alter: <span id="age">0d 0h 0m</span></p>
   <p>Level: <span id="level">1</span></p>
-  <div class="progress-bar-container">
-    <progress id="xpProgress" value="0" max="100"></progress>
-  </div>
+  <progress id="xpProgress"></progress>
 </div>
-
+  
   <!-- 🎮 Interaktionen -->
   <div class="buttons">
     <button onclick="feed()">Füttern</button>
