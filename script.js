@@ -108,6 +108,10 @@ function gainXP(amount) {
   if (xp >= level * XP_PER_LEVEL) {
     level += 1;
     speak(`Level up! Ich bin jetzt Level ${level}`);
+      // 🎨 Neue Farbe generieren
+  const randomColor = `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
+  document.getElementById("pet").style.color = randomColor;
+  localStorage.setItem("gotchiColor", randomColor);
   }
 }
 
@@ -199,10 +203,7 @@ const timer = setInterval(() => {
   if (hunger < 100 && mood > 0 && energy > 0) {
     age += 1;
     
-  // 🎨 Neue Farbe generieren
-  const randomColor = `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
-  document.getElementById("pet").style.color = randomColor;
-  localStorage.setItem("gotchiColor", randomColor);
+
   }
   localStorage.setItem("gotchiHunger", hunger);
   localStorage.setItem("gotchiMood", mood);
