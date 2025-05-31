@@ -7,6 +7,9 @@ let age = Number(localStorage.getItem("gotchiAge")) || 0;
 let xp = Number(localStorage.getItem("gotchiXP")) || 0;
 const XP_PER_LEVEL = 60;
 
+let gotchiColor = localStorage.getItem("gotchiColor") || "#000";
+document.getElementById("pet").style.color = gotchiColor;
+
 // 🥚 Typ bestimmen
 let gotchiType = localStorage.getItem("gotchiType");
 if (!gotchiType) {
@@ -28,6 +31,10 @@ if (lastActive) {
   if (levelUps > 0) {
     level += levelUps;
     speak(`Level up! Ich bin jetzt Level ${level}`);
+    // 🎨 Zufällige neue Farbe generieren
+      const randomColor = `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
+      document.getElementById("pet").style.color = randomColor;
+      localStorage.setItem("gotchiColor", randomColor);
   }
   age = newAge;
 }
@@ -195,6 +202,11 @@ const timer = setInterval(() => {
   energy = Math.max(0, energy - 0.4);
   if (hunger < 100 && mood > 0 && energy > 0) {
     age += 1;
+    
+  // 🎨 Neue Farbe generieren
+  const randomColor = `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
+  document.getElementById("pet").style.color = randomColor;
+  localStorage.setItem("gotchiColor", randomColor);
   }
   localStorage.setItem("gotchiHunger", hunger);
   localStorage.setItem("gotchiMood", mood);
