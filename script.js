@@ -15,12 +15,24 @@ if (!gotchiType) {
 const petElement = document.getElementById("pet");
 const hatched = localStorage.getItem("gotchiHatched");
 
+// Falls das Gotchi noch nicht geschlüpft ist
 if (!hatched) {
   petElement.textContent = "🥚";
-  setTimeout(() => {
-    petElement.textContent = getGotchiFace(gotchiType);
-    localStorage.setItem("gotchiHatched", "true");
-  }, 3000);
+
+  petElement.addEventListener("click", function hatchOnce() {
+    petElement.removeEventListener("click", hatchOnce);
+
+    // Wackeln & Ton
+    petElement.classList.add("shake");
+    playBeep("hatch");
+
+    // Nach Animation schlüpfen
+    setTimeout(() => {
+      petElement.classList.remove("shake");
+      petElement.textContent = getGotchiFace(gotchiType);
+      localStorage.setItem("gotchiHatched", "true");
+    }, 1500);
+  });
 } else {
   petElement.textContent = getGotchiFace(gotchiType);
 }
@@ -108,6 +120,7 @@ function playBeep(type = "default") {
   if (type === "eat") oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
   else if (type === "play") oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
   else if (type === "sleep") oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+  else if (type === "hatch") oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime);
   else oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
 
   oscillator.connect(gain);
