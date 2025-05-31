@@ -39,6 +39,11 @@ if (lastActive) {
 const petElement = document.getElementById("pet");
 const hatched = localStorage.getItem("gotchiHatched");
 
+const savedColor = localStorage.getItem("gotchiColor");
+if (savedColor) {
+  petElement.style.color = savedColor;
+}
+
 if (!hatched) {
   petElement.textContent = "🥚";
   petElement.addEventListener("click", function hatchOnce() {
@@ -48,6 +53,12 @@ if (!hatched) {
     setTimeout(() => {
       petElement.classList.remove("shake");
       petElement.textContent = getGotchiFace(gotchiType);
+
+      // 🟢 Setze Standardfarbe nur beim ersten Mal
+      const defaultColor = "#4CAF50";
+      localStorage.setItem("gotchiColor", defaultColor);
+      petElement.style.color = defaultColor;
+
       localStorage.setItem("gotchiHatched", "true");
     }, 1500);
   });
