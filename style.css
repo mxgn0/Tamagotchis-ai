@@ -73,6 +73,30 @@ button {
   background-color: #00ff88;
   animation: loadingAnim 1.5s infinite;
 }
+/* Fortschrittsbalken für XP */
+progress#xpProgress {
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  appearance: none;
+}
+
+progress#xpProgress::-webkit-progress-bar {
+  background-color: #ddd;
+  border-radius: 6px;
+}
+
+progress#xpProgress::-webkit-progress-value {
+  background-color: var(--progress-color, #66cc66);
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+progress#xpProgress::-moz-progress-bar {
+  background-color: var(--progress-color, #66cc66);
+  border-radius: 6px;
+}
 progress#xpProgress::-webkit-progress-value {
   background-color: var(--progress-color, #66cc66);
 }
