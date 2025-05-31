@@ -26,7 +26,9 @@ if (lastActive) {
   hunger = Math.min(100, hunger + secondsPassed * 0.12);
   mood = Math.max(0, mood - secondsPassed * 0.1);
   energy = Math.max(0, energy - secondsPassed * 0.08);
-  const newAge = age + Math.floor(secondsPassed / 5);
+
+  const ticksPassed = Math.floor(secondsPassed / 5);
+  const newAge = age + ticksPassed;
   const levelUps = Math.floor(newAge / 100) - Math.floor(age / 100);
   if (levelUps > 0) {
     level += levelUps;
