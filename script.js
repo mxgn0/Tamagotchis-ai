@@ -105,12 +105,20 @@ function updateStats() {
   document.getElementById("age").textContent = `${ageDays}d ${ageHours}h ${ageMins}m`;
 
   // Tod
-  if (hunger >= 100 || mood <= 0 || energy <= 0) {
-    document.getElementById('pet').textContent = "(x_x)";
-    clearInterval(timer);
-    speak("Ich bin gestorben...");
-    alert("Dein Gotchi ist gestorben...");
-  }
+  const now = Date.now();
+const lastCare = Number(localStorage.getItem("lastCareTime")) || now;
+const hoursSinceCare = (now - lastCare) / (1000 * 60 * 60);
+
+if (hunger >= 100 || mood <= 0 || energy <= 0 || hoursSinceCare > 36) {
+  petElement.textContent = "(x_x)";
+  clearInterval(timer);
+  speak("Ich bin gestorben...");
+  alert("Dein Gotchi ist gestorben...");
+} else if (hunger > 85 || energy < 20 || hoursSinceCare > 24) {
+  petElement.textContent = "(ಠ_ಠ)";
+} else {
+  petElement.textContent = getGotchiFace(gotchiType);
+}
 }
 
 // 🌱 Level & XP Management
