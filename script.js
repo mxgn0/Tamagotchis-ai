@@ -68,17 +68,29 @@ function updateStats() {
   document.getElementById("mood").textContent = Math.round(mood);
   document.getElementById("energy").textContent = Math.round(energy);
   document.getElementById("level").textContent = level;
-  document.getElementById("xp").textContent = xp;
 
+  // Fortschrittsbalken: XP anzeigen ohne Zahl
   const xpProgress = document.getElementById("xpProgress");
-  if (xpProgress) xpProgress.value = (xp % XP_PER_LEVEL);
+  const xpInLevel = xp % XP_PER_LEVEL;
+  if (xpProgress) {
+    xpProgress.value = xpInLevel;
+    xpProgress.max = XP_PER_LEVEL;
 
+    // Optional: Farbe je nach Fortschritt
+    const percent = (xpInLevel / XP_PER_LEVEL) * 100;
+    if (percent < 33) xpProgress.style.setProperty('--progress-color', '#ff6666');
+    else if (percent < 66) xpProgress.style.setProperty('--progress-color', '#ffaa00');
+    else xpProgress.style.setProperty('--progress-color', '#66cc66');
+  }
+
+  // Alter anzeigen
   const ageMinutes = Math.floor(age / 12);
   const ageDays = Math.floor(ageMinutes / 1440);
   const ageHours = Math.floor((ageMinutes % 1440) / 60);
   const ageMins = ageMinutes % 60;
   document.getElementById("age").textContent = `${ageDays}d ${ageHours}h ${ageMins}m`;
 
+  // Tod
   if (hunger >= 100 || mood <= 0 || energy <= 0) {
     document.getElementById('pet').textContent = "(x_x)";
     clearInterval(timer);
