@@ -1,9 +1,11 @@
-// Anfangszustände
-let hunger = 50;
-let mood = 50;
-let energy = 50;
+// 🧠 Lade oder setze Anfangswerte
+let hunger = Number(localStorage.getItem("gotchiHunger")) || 50;
+let mood = Number(localStorage.getItem("gotchiMood")) || 50;
+let energy = Number(localStorage.getItem("gotchiEnergy")) || 50;
+let level = Number(localStorage.getItem("gotchiLevel")) || 1;
+let age = Number(localStorage.getItem("gotchiAge")) || 0;
 
-// Gotchi-Typ festlegen
+// 🥚 Typ bestimmen
 let gotchiType = localStorage.getItem("gotchiType");
 if (!gotchiType) {
   const types = ["Feuer", "Wasser", "Pflanze"];
@@ -11,22 +13,33 @@ if (!gotchiType) {
   localStorage.setItem("gotchiType", gotchiType);
 }
 
-// Hat es schon geschlüpft?
+// 🕒 Reale Zeitveränderung
+const lastActive = Number(localStorage.getItem("lastActiveTime"));
+const now = Date.now();
+if (lastActive) {
+  const secondsPassed = Math.floor((now - lastActive) / 1000);
+  hunger = Math.min(100, hunger + secondsPassed * 0.12);
+  mood = Math.max(0, mood - secondsPassed * 0.1);
+  energy = Math.max(0, energy - secondsPassed * 0.08);
+  const newAge = age + Math.floor(secondsPassed / 5);
+  const levelUps = Math.floor(newAge / 100) - Math.floor(age / 100);
+  if (levelUps > 0) {
+    level += levelUps;
+    speak(`Level up! Ich bin jetzt Level ${level}`);
+  }
+  age = newAge;
+}
+
+// 🐣 Hatch-Logik
 const petElement = document.getElementById("pet");
 const hatched = localStorage.getItem("gotchiHatched");
 
-// Falls das Gotchi noch nicht geschlüpft ist
 if (!hatched) {
   petElement.textContent = "🥚";
-
   petElement.addEventListener("click", function hatchOnce() {
     petElement.removeEventListener("click", hatchOnce);
-
-    // Wackeln & Ton
     petElement.classList.add("shake");
     playBeep("hatch");
-
-    // Nach Animation schlüpfen
     setTimeout(() => {
       petElement.classList.remove("shake");
       petElement.textContent = getGotchiFace(gotchiType);
@@ -37,7 +50,7 @@ if (!hatched) {
   petElement.textContent = getGotchiFace(gotchiType);
 }
 
-// Zeigt das Gesicht je nach Typ
+// 😺 Aussehen nach Typ
 function getGotchiFace(type) {
   switch (type) {
     case "Feuer": return "🔥(•‿•)";
@@ -47,11 +60,13 @@ function getGotchiFace(type) {
   }
 }
 
-// Anzeige aktualisieren
+// 🧮 Anzeige
 function updateStats() {
   document.getElementById("hunger").textContent = Math.round(hunger);
   document.getElementById("mood").textContent = Math.round(mood);
   document.getElementById("energy").textContent = Math.round(energy);
+  const levelDisplay = document.getElementById("level");
+  if (levelDisplay) levelDisplay.textContent = level;
 
   if (hunger >= 100 || mood <= 0 || energy <= 0) {
     document.getElementById('pet').textContent = "(x_x)";
@@ -61,32 +76,24 @@ function updateStats() {
   }
 }
 
-// GPT-Anfrage
+// 🗣 GPT-Anfrage
 async function askGotchi() {
   const chatBox = document.getElementById("chat");
   const loadingBar = document.getElementById("loadingBar");
-
   loadingBar.style.display = "block";
   chatBox.textContent = "";
 
   try {
     const response = await fetch("https://openai-proxy-swart-one.vercel.app/api/gpt", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ hunger, mood, energy })
     });
 
     const data = await response.json();
-    const reply =
-      data?.reply ||
-      data?.choices?.[0]?.message?.content?.trim() ||
-      "GPT hat nichts gesagt 😕";
-
+    const reply = data?.reply || data?.choices?.[0]?.message?.content?.trim() || "GPT hat nichts gesagt 😕";
     chatBox.textContent = reply;
     speak(reply);
-
   } catch (error) {
     console.error("Fehler bei GPT-Anfrage:", error);
     chatBox.textContent = "Ich erreiche GPT gerade nicht.";
@@ -95,7 +102,7 @@ async function askGotchi() {
   }
 }
 
-// Sprachausgabe
+// 🔊 Sprachausgabe
 function speak(text) {
   try {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -109,59 +116,66 @@ function speak(text) {
   }
 }
 
-// Töne
+// 🔔 Töne
 function playBeep(type = "default") {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const oscillator = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-
   oscillator.type = "sine";
 
-  if (type === "eat") oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
-  else if (type === "play") oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
-  else if (type === "sleep") oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
-  else if (type === "hatch") oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime);
-  else oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
-
+  const freqMap = {
+    eat: 300, play: 600, sleep: 150, hatch: 1200, default: 440
+  };
+  oscillator.frequency.setValueAtTime(freqMap[type] || freqMap.default, audioCtx.currentTime);
   oscillator.connect(gain);
   gain.connect(audioCtx.destination);
   gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-
   oscillator.start();
   oscillator.stop(audioCtx.currentTime + 0.15);
 }
 
-// Aktionen
+// 🍎 Aktionen
 function feed() {
   hunger = Math.max(0, hunger - 20);
   playBeep("eat");
   updateStats();
 }
-
 function play() {
   mood = Math.min(100, mood + 20);
   playBeep("play");
   updateStats();
 }
-
 function sleep() {
   energy = Math.min(100, energy + 20);
   playBeep("sleep");
   updateStats();
 }
 
-// Zustand verschlechtert sich über Zeit
+// ⏳ Hintergrundverlauf
 const timer = setInterval(() => {
   hunger = Math.min(100, hunger + 0.6);
   mood = Math.max(0, mood - 0.5);
   energy = Math.max(0, energy - 0.4);
+  if (hunger < 100 && mood > 0 && energy > 0) {
+    age += 1;
+    if (age % 100 === 0) {
+      level += 1;
+      speak(`Level up! Ich bin jetzt Level ${level}`);
+    }
+  }
+  localStorage.setItem("gotchiHunger", hunger);
+  localStorage.setItem("gotchiMood", mood);
+  localStorage.setItem("gotchiEnergy", energy);
+  localStorage.setItem("gotchiLevel", level);
+  localStorage.setItem("gotchiAge", age);
+  localStorage.setItem("lastActiveTime", Date.now());
   updateStats();
 }, 5000);
 
-// Initial anzeigen
+// 👁 Initial anzeigen
 updateStats();
 
-// Doppeltipp-Zoom auf iOS blockieren
+// 📱 iOS-Zoom blockieren
 let lastTouchTime = 0;
 document.addEventListener('touchstart', function (e) {
   const currentTime = new Date().getTime();
