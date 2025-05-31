@@ -67,14 +67,15 @@ button {
   overflow: hidden;
   border-radius: 4px;
 }
-
 .loading-bar {
   height: 100%;
   width: 0%;
   background-color: #00ff88;
   animation: loadingAnim 1.5s infinite;
 }
-
+progress#xpProgress::-webkit-progress-value {
+  background-color: var(--progress-color, #66cc66);
+}
 @keyframes loadingAnim {
   0% { width: 0%; }
   50% { width: 100%; }
