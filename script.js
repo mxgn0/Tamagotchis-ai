@@ -31,10 +31,6 @@ if (lastActive) {
   if (levelUps > 0) {
     level += levelUps;
     speak(`Level up! Ich bin jetzt Level ${level}`);
-    // 🎨 Zufällige neue Farbe generieren
-      const randomColor = `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
-      document.getElementById("pet").style.color = randomColor;
-      localStorage.setItem("gotchiColor", randomColor);
   }
   age = newAge;
 }
