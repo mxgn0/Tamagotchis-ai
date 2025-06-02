@@ -1,119 +1,112 @@
+/* Grundlegende Styles und Layout */
 body {
-  font-family: monospace;
-  background-color: #111;
-  color: #0f0;
-  text-align: center;
-  padding-top: 50px;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #fafafa;
 }
 
-#pet {
-  font-size: 60px;
-  margin: 30px 0;
-}
-
-button {
-  font-size: 18px;
-  margin: 5px;
-  padding: 10px 20px;
-  background-color: #222;
-  color: #0f0;
-  border: 1px solid #0f0;
-  cursor: pointer;
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-.chatbox {
+#game-container {
+  width: min(90vmin, 500px);
   margin: 20px auto;
-  max-width: 300px;
-  background: #222;
-  padding: 10px;
-  border: 1px solid #0f0;
-  font-style: italic;
-}
-.progress-bar-container {
-  width: 100%;
-  height: 10px;
-  background-color: #ccc;
-  border-radius: 5px;
-  margin-top: 5px;
-  overflow: hidden;
-}
-.progress-bar {
-  height: 10px;
-  background-color: #4caf50;
-  width: 0%;
-  transition: width 0.3s;
-}
-.loading {
   text-align: center;
-  color: #0f0;
-  margin-top: 10px;
-  font-style: italic;
-  animation: blink 1s infinite;
 }
 
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0.2; }
-  100% { opacity: 1; }
+#game-container h1 {
+  margin-bottom: 10px;
 }
-.loading-bar-container {
+
+#model-container {
   width: 100%;
-  height: 6px;
-  background-color: #444;
-  margin-top: 10px;
-  overflow: hidden;
-  border-radius: 4px;
+  aspect-ratio: 1 / 1;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  position: relative;
 }
-.loading-bar {
-  height: 100%;
-  width: 0%;
-  background-color: #00ff88;
-  animation: loadingAnim 1.5s infinite;
+
+.mood-emoji {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 3em;
+  pointer-events: none;
+  display: none;
 }
-/* Fortschrittsbalken für XP */
-progress#xpProgress {
+
+.chat-box {
   width: 100%;
-  height: 12px;
-  border-radius: 6px;
-  overflow: hidden;
+  max-height: 150px;
+  overflow-y: auto;
+  background: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px;
+  box-sizing: border-box;
+  margin: 10px 0;
+  text-align: left;
+}
+
+#stats div {
+  margin: 5px 0;
+}
+
+#level, #age {
+  margin: 5px 0;
+}
+
+progress {
+  width: 60%;
+  height: 10px;
+  -webkit-appearance: none;
   appearance: none;
 }
-
-progress#xpProgress::-webkit-progress-bar {
-  background-color: #ddd;
-  border-radius: 6px;
+progress::-webkit-progress-bar {
+  background: #eee;
+  border-radius: 5px;
+}
+progress::-webkit-progress-value {
+  border-radius: 5px;
+}
+progress::-moz-progress-bar {
+  border-radius: 5px;
 }
 
-progress#xpProgress::-webkit-progress-value {
-  background-color: var(--progress-color, #66cc66);
-  border-radius: 6px;
-  transition: width 0.3s ease;
+/* Farben der Fortschrittsbalken für einzelne Werte */
+#hunger-bar::-webkit-progress-value { background: #FF9800; }
+#hunger-bar::-moz-progress-bar { background: #FF9800; }
+
+#mood-bar::-webkit-progress-value { background: #E91E63; }
+#mood-bar::-moz-progress-bar { background: #E91E63; }
+
+#energy-bar::-webkit-progress-value { background: #03A9F4; }
+#energy-bar::-moz-progress-bar { background: #03A9F4; }
+
+#xp-bar::-webkit-progress-value { background: #9C27B0; }
+#xp-bar::-moz-progress-bar { background: #9C27B0; }
+
+#actions {
+  margin: 15px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }
 
-progress#xpProgress::-moz-progress-bar {
-  background-color: var(--progress-color, #66cc66);
-  border-radius: 6px;
+#actions button {
+  background: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 1em;
+  cursor: pointer;
 }
-progress#xpProgress::-webkit-progress-value {
-  background-color: var(--progress-color, #66cc66);
+#actions button:hover {
+  background: #45a049;
 }
-@keyframes loadingAnim {
-  0% { width: 0%; }
-  50% { width: 100%; }
-  100% { width: 0%; }
-}
-@keyframes shake {
-  0% { transform: rotate(0); }
-  20% { transform: rotate(-5deg); }
-  40% { transform: rotate(5deg); }
-  60% { transform: rotate(-5deg); }
-  80% { transform: rotate(5deg); }
-  100% { transform: rotate(0); }
-}
-
-.shake {
-  animation: shake 0.6s ease-in-out;
+#actions button:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
 }
