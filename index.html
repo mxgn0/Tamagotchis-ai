@@ -2,57 +2,51 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Gotchi-AI</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tamagotchi 3D</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1b1b1b;
+      color: #fff;
+      text-align: center;
+    }
+    #pet {
+      margin: 0 auto;
+      width: 400px;
+      height: 400px;
+    }
+    #stats {
+      margin-top: 1em;
+    }
+    progress {
+      width: 80%;
+      height: 20px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Gotchi-AI</h1>
+  <h1>🧬 Mein Gotchi</h1>
+  <div id="pet"></div>
 
-  <!-- 🥚 Tamagotchi-Anzeige -->
-  <div id="pet">🥚</div>
-
-  <!-- 💬 Chat-Anzeige -->
-  <div id="chat" class="chatbox">Ich sag dir gleich, wie's mir geht...</div>
-
-  <!-- ⏳ Ladeanzeige -->
-  <div id="loading" class="loading" style="display: none;">🤔 Ich überlege...</div>
-  <div id="loadingBar" class="loading-bar-container" style="display: none;">
-    <div class="loading-bar"></div>
+  <div id="stats">
+    <p>Hunger: <span id="hunger">0</span></p>
+    <p>Laune: <span id="mood">0</span></p>
+    <p>Energie: <span id="energy">0</span></p>
+    <p>Level: <span id="level">1</span></p>
+    <p>Alter: <span id="age">0d 0h 0m</span></p>
+    <progress id="xpProgress" value="0" max="60"></progress>
   </div>
 
-  <!-- ❓ Button für AI -->
-  <button onclick="askGotchi()">Wie geht’s dir?</button>
+  <button onclick="feed()">🍎 Füttern</button>
+  <button onclick="play()">🎾 Spielen</button>
+  <button onclick="sleep()">😴 Schlafen</button>
 
-  <!-- 📊 Statuswerte -->
-  <div class="stats">
-    <p>Hunger: <span id="hunger">50</span></p>
-    <p>Laune: <span id="mood">50</span></p>
-    <p>Energie: <span id="energy">50</span></p>
-  </div>
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r148/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/examples/js/loaders/FBXLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/examples/js/controls/OrbitControls.js"></script>
 
-  /3d loader
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/FBXLoader.js"></script>
-
-  /3d szene
-  <div id="three-container" style="width: 100vw; height: 100vh;"></div>
-
-<!-- ⏱️ Level, XP & Alter -->
-<div class="status">
-  <p>Alter: <span id="age">0d 0h 0m</span></p>
-  <p>Level: <span id="level">1</span></p>
-  <progress id="xpProgress"></progress>
-</div>
-  
-  <!-- 🎮 Interaktionen -->
-  <div class="buttons">
-    <button onclick="feed()">Füttern</button>
-    <button onclick="play()">Spielen</button>
-    <button onclick="sleep()">Schlafen</button>
-  </div>
-
-  <!-- 📜 Skript -->
   <script src="script.js"></script>
 </body>
 </html>
