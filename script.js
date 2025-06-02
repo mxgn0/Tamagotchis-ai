@@ -7,6 +7,40 @@ let age = Number(localStorage.getItem("gotchiAge")) || 0;
 let xp = Number(localStorage.getItem("gotchiXP")) || 0;
 const XP_PER_LEVEL = 60;
 
+// THREE.js Scene Setup
+let scene = new THREE.Scene();
+let camera = new THREE.PerspectiveCamera(75, window.innerWidth / 300, 0.1, 1000);
+let renderer = new THREE.WebGLRenderer({ alpha: true });
+renderer.setSize(window.innerWidth, 300);
+document.getElementById("three-container").appendChild(renderer.domElement);
+
+// Licht hinzufügen
+let light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(2, 2, 5).normalize();
+scene.add(light);
+
+// Kamera-Position
+camera.position.z = 5;
+
+// FBX-Modell laden
+let gotchiModel;
+const loader = new THREE.FBXLoader();
+loader.load("models/gotchi.fbx", function (object) {
+  gotchiModel = object;
+  gotchiModel.scale.set(0.01, 0.01, 0.01);
+  scene.add(gotchiModel);
+}, undefined, function (error) {
+  console.error("Fehler beim Laden des FBX:", error);
+});
+
+// Animation
+function animate() {
+  requestAnimationFrame(animate);
+  if (gotchiModel) gotchiModel.rotation.y += 0.01;
+  renderer.render(scene, camera);
+}
+animate();
+
 // 📊 Anzeige aktualisieren
 function updateStats() {
   document.getElementById("hunger").textContent = Math.round(hunger);
