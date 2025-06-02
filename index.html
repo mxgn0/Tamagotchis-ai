@@ -2,38 +2,32 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tamagotchi AI</title>
-  <style>
-    body { margin: 0; font-family: sans-serif; background: #f0f0f0; text-align: center; }
-    canvas { display: block; margin: 0 auto; }
-    #ui { margin-top: 20px; }
-    progress { width: 200px; height: 20px; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gotchi-AI</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Three.js und FBXLoader von CDN einbinden -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.127.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.127.0/examples/js/loaders/FBXLoader.js"></script>
 </head>
 <body>
-  <div id="three-container" style="width: 100%; height: 300px;"></div>
-
-  <div id="ui">
-    <div>Hunger: <span id="hunger"></span></div>
-    <div>Laune: <span id="mood"></span></div>
-    <div>Energie: <span id="energy"></span></div>
-    <div>Level: <span id="level"></span></div>
-    <div>Alter: <span id="age"></span></div>
-    <progress id="xpProgress" value="0" max="60"></progress>
-    <br><br>
-    <button onclick="feed()">🍎 Füttern</button>
-    <button onclick="play()">🎮 Spielen</button>
-    <button onclick="sleep()">💤 Schlafen</button>
-    <button onclick="askGotchi()">🤖 Wie geht's dir?</button>
-    <div id="chat"></div>
-    <div id="loadingBar" style="display:none;">GPT lädt...</div>
+  <div id="game-container">
+    <h1>Gotchi-AI</h1>
+    <div id="model-container"></div>
+    <div id="chat" class="chat-box"></div>
+    <div id="stats">
+      <div>Hunger: <progress id="hunger-bar" value="100" max="100"></progress></div>
+      <div>Laune: <progress id="mood-bar" value="100" max="100"></progress></div>
+      <div>Energie: <progress id="energy-bar" value="100" max="100"></progress></div>
+    </div>
+    <div id="level">Level: <span id="level-num">1</span> <progress id="xp-bar" value="0" max="100"></progress></div>
+    <div id="age">Alter: 0 Tage, 0 Stunden, 0 Minuten</div>
+    <div id="actions">
+      <button id="feed">Füttern</button>
+      <button id="play">Spielen</button>
+      <button id="sleep">Schlafen</button>
+      <button id="talk">Wie geht's dir?</button>
+    </div>
   </div>
-
-  <!-- THREE.js + FBXLoader -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/loaders/FBXLoader.js"></script>
-
   <script src="script.js"></script>
 </body>
 </html>
