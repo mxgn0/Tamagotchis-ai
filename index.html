@@ -2,50 +2,37 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tamagotchi 3D</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tamagotchi AI</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #1b1b1b;
-      color: #fff;
-      text-align: center;
-    }
-    #pet {
-      margin: 0 auto;
-      width: 400px;
-      height: 400px;
-    }
-    #stats {
-      margin-top: 1em;
-    }
-    progress {
-      width: 80%;
-      height: 20px;
-    }
+    body { margin: 0; font-family: sans-serif; background: #f0f0f0; text-align: center; }
+    canvas { display: block; margin: 0 auto; }
+    #ui { margin-top: 20px; }
+    progress { width: 200px; height: 20px; }
   </style>
 </head>
 <body>
-  <h1>🧬 Mein Gotchi</h1>
-  <div id="pet"></div>
+  <div id="three-container" style="width: 100%; height: 300px;"></div>
 
-  <div id="stats">
-    <p>Hunger: <span id="hunger">0</span></p>
-    <p>Laune: <span id="mood">0</span></p>
-    <p>Energie: <span id="energy">0</span></p>
-    <p>Level: <span id="level">1</span></p>
-    <p>Alter: <span id="age">0d 0h 0m</span></p>
+  <div id="ui">
+    <div>Hunger: <span id="hunger"></span></div>
+    <div>Laune: <span id="mood"></span></div>
+    <div>Energie: <span id="energy"></span></div>
+    <div>Level: <span id="level"></span></div>
+    <div>Alter: <span id="age"></span></div>
     <progress id="xpProgress" value="0" max="60"></progress>
+    <br><br>
+    <button onclick="feed()">🍎 Füttern</button>
+    <button onclick="play()">🎮 Spielen</button>
+    <button onclick="sleep()">💤 Schlafen</button>
+    <button onclick="askGotchi()">🤖 Wie geht's dir?</button>
+    <div id="chat"></div>
+    <div id="loadingBar" style="display:none;">GPT lädt...</div>
   </div>
 
-  <button onclick="feed()">🍎 Füttern</button>
-  <button onclick="play()">🎾 Spielen</button>
-  <button onclick="sleep()">😴 Schlafen</button>
-
-  <!-- Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r148/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/examples/js/loaders/FBXLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- THREE.js + FBXLoader -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/loaders/FBXLoader.js"></script>
 
   <script src="script.js"></script>
 </body>
