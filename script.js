@@ -239,6 +239,39 @@ const timer = setInterval(() => {
   updateStats();
 }, 5000);
 
+// 🌍 Basis-Setup
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.getElementById("three-container").appendChild(renderer.domElement);
+
+// 💡 Licht hinzufügen
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(0, 1, 1);
+scene.add(light);
+
+// 🧸 FBX-Modell laden
+const loader = new THREE.FBXLoader();
+loader.load('models/gotchi.fbx', function (object) {
+  object.scale.set(0.01, 0.01, 0.01); // ggf. skalieren
+  object.position.y = -1;
+  scene.add(object);
+
+  animate();
+}, undefined, function (error) {
+  console.error("Fehler beim Laden der FBX:", error);
+});
+
+// 📷 Kamera-Position
+camera.position.z = 2;
+
+// 🔁 Animation
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
+
 // 👁 Initial anzeigen
 updateStats();
 
