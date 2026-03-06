@@ -255,7 +255,7 @@ function spawnGotchi(theme) {
   model = createGotchi(theme);
   if (baseColor) {
     model.traverse(function(child) {
-      if (child.isMesh && child.material) {
+      if (child.isMesh && child.material && child.name === 'gotchi-body') {
         child.material.color.set(baseColor);
       }
     });
@@ -331,7 +331,7 @@ function levelUp() {
     const newColor = new THREE.Color();
     newColor.setHSL(Math.random(), 0.8, 0.5);
     model.traverse(function(child) {
-      if (child.isMesh && child.material) {
+      if (child.isMesh && child.material && child.name === 'gotchi-body') {
         child.material.color.set(newColor);
       }
     });
