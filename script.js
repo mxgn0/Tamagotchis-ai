@@ -129,8 +129,6 @@ const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
 let renderer = null;
 let model = null;
 let eggMesh = null;
-let currentTheme = null;
-let hatchTimeoutId = null;
 
 const GOTCHI_THEME_STORAGE = 'gotchiTheme';
 const GOTCHI_HATCHED_STORAGE = 'gotchiHasHatched';
@@ -250,69 +248,6 @@ function pickRandomTheme() {
   return GOTCHI_THEMES[index];
 }
 
-function updateThemeStatus() {
-  if (!gotchiThemeStatus) return;
-  if (!currentTheme) {
-    gotchiThemeStatus.textContent = 'Noch kein Modell gesetzt.';
-    return;
-  }
-  gotchiThemeStatus.textContent = `Aktuelles Modell: ${currentTheme}`;
-}
-
-function setCurrentTheme(theme) {
-  if (!GOTCHI_THEMES.includes(theme)) return;
-  currentTheme = theme;
-  localStorage.setItem(GOTCHI_THEME_STORAGE, theme);
-  localStorage.setItem(GOTCHI_HATCHED_STORAGE, '1');
-  if (gotchiThemeSelect) {
-    gotchiThemeSelect.value = theme;
-  }
-  updateThemeStatus();
-}
-
-function initModelControls() {
-  const storedTheme = localStorage.getItem(GOTCHI_THEME_STORAGE);
-  if (storedTheme && GOTCHI_THEMES.includes(storedTheme)) {
-    currentTheme = storedTheme;
-  }
-  if (gotchiThemeSelect) {
-    gotchiThemeSelect.value = currentTheme && GOTCHI_THEMES.includes(currentTheme) ? currentTheme : GOTCHI_THEMES[0];
-  }
-
-  if (saveGotchiThemeButton) {
-    saveGotchiThemeButton.addEventListener('click', function() {
-      if (!gotchiThemeSelect) return;
-      const theme = gotchiThemeSelect.value;
-      if (!GOTCHI_THEMES.includes(theme)) return;
-      if (hatchTimeoutId) {
-        clearTimeout(hatchTimeoutId);
-        hatchTimeoutId = null;
-      }
-      if (eggMesh) {
-        scene.remove(eggMesh);
-        eggMesh = null;
-      }
-      setCurrentTheme(theme);
-      spawnGotchi(theme);
-      appendChatMessage(`✨ Modell gewechselt: Dein Gotchi ist jetzt ${theme}.`);
-    });
-  }
-
-  if (randomGotchiThemeButton) {
-    randomGotchiThemeButton.addEventListener('click', function() {
-      const theme = pickRandomTheme();
-      if (gotchiThemeSelect) {
-        gotchiThemeSelect.value = theme;
-      }
-      if (saveGotchiThemeButton) {
-        saveGotchiThemeButton.click();
-      }
-    });
-  }
-
-  updateThemeStatus();
-}
-
 function spawnGotchi(theme) {
   if (model) {
     scene.remove(model);
@@ -335,7 +270,6 @@ function hatchFirstGotchiIfNeeded() {
   const hasHatched = localStorage.getItem(GOTCHI_HATCHED_STORAGE) === '1';
 
   if (storedTheme && hasHatched) {
-    setCurrentTheme(storedTheme);
     spawnGotchi(storedTheme);
     return;
   }
@@ -343,20 +277,19 @@ function hatchFirstGotchiIfNeeded() {
   eggMesh = createEgg();
   scene.add(eggMesh);
 
-  hatchTimeoutId = setTimeout(function() {
+  setTimeout(function() {
     if (eggMesh) {
       scene.remove(eggMesh);
       eggMesh = null;
     }
     const theme = pickRandomTheme();
-    setCurrentTheme(theme);
+    localStorage.setItem(GOTCHI_THEME_STORAGE, theme);
+    localStorage.setItem(GOTCHI_HATCHED_STORAGE, '1');
     spawnGotchi(theme);
     appendChatMessage(`🐣 Dein Ei ist geschlüpft! Dein erstes Gotchi ist vom Element ${theme}.`);
-    hatchTimeoutId = null;
   }, 1800);
 }
 
-initModelControls();
 hatchFirstGotchiIfNeeded();
 
 // Bei Fenstergrößenänderung Canvas anpassen
