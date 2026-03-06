@@ -185,3 +185,36 @@ progress::-moz-progress-bar {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+
+.model-config {
+  margin: 12px 0 10px;
+  text-align: left;
+}
+
+.model-config label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.model-config-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+}
+
+#gotchi-theme-select {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+#gotchi-theme-status {
+  display: block;
+  margin-top: 6px;
+  color: #555;
+}
