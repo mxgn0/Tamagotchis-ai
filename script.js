@@ -21,6 +21,10 @@ const apiKeyInput = document.getElementById('api-key-input');
 const saveApiKeyButton = document.getElementById('save-api-key');
 const clearApiKeyButton = document.getElementById('clear-api-key');
 const apiKeyStatus = document.getElementById('api-key-status');
+const gotchiThemeSelect = document.getElementById('gotchi-theme-select');
+const saveGotchiThemeButton = document.getElementById('save-gotchi-theme');
+const randomGotchiThemeButton = document.getElementById('random-gotchi-theme');
+const gotchiThemeStatus = document.getElementById('gotchi-theme-status');
 // Emoji-Overlay für Gesichtsausdruck
 const moodEmoji = document.createElement('div');
 moodEmoji.className = 'mood-emoji';
@@ -125,7 +129,6 @@ const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
 let renderer = null;
 let model = null;
 let eggMesh = null;
-let hatchTimeoutId = null;
 
 const GOTCHI_THEME_STORAGE = 'gotchiTheme';
 const GOTCHI_HATCHED_STORAGE = 'gotchiHasHatched';
@@ -245,46 +248,6 @@ function pickRandomTheme() {
   return GOTCHI_THEMES[index];
 }
 
-function setCurrentTheme(theme) {
-  if (!GOTCHI_THEMES.includes(theme)) return;
-  localStorage.setItem(GOTCHI_THEME_STORAGE, theme);
-  localStorage.setItem(GOTCHI_HATCHED_STORAGE, '1');
-}
-
-function applyLevelVisuals() {
-  if (!model) return;
-
-  const levelScale = 1 + Math.min((level - 1) * 0.05, 0.6);
-  model.scale.set(levelScale, levelScale, levelScale);
-
-  const oldAura = model.getObjectByName('level-aura');
-  if (oldAura) {
-    model.remove(oldAura);
-  }
-
-  const auraCount = Math.min(Math.floor(level / 3), 4);
-  if (auraCount <= 0) return;
-
-  const auraGroup = new THREE.Group();
-  auraGroup.name = 'level-aura';
-  const auraMaterial = new THREE.MeshStandardMaterial({
-    color: 0xfff176,
-    emissive: 0xfff176,
-    emissiveIntensity: 0.35,
-    transparent: true,
-    opacity: 0.85
-  });
-
-  for (let i = 0; i < auraCount; i++) {
-    const angle = (Math.PI * 2 * i) / auraCount;
-    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 12), auraMaterial);
-    orb.position.set(Math.cos(angle) * 1.6, 0.9 + (i % 2) * 0.25, Math.sin(angle) * 1.6);
-    auraGroup.add(orb);
-  }
-
-  model.add(auraGroup);
-}
-
 function spawnGotchi(theme) {
   if (model) {
     scene.remove(model);
@@ -315,16 +278,16 @@ function hatchFirstGotchiIfNeeded() {
   eggMesh = createEgg();
   scene.add(eggMesh);
 
-  hatchTimeoutId = setTimeout(function() {
+  setTimeout(function() {
     if (eggMesh) {
       scene.remove(eggMesh);
       eggMesh = null;
     }
     const theme = pickRandomTheme();
-    setCurrentTheme(theme);
+    localStorage.setItem(GOTCHI_THEME_STORAGE, theme);
+    localStorage.setItem(GOTCHI_HATCHED_STORAGE, '1');
     spawnGotchi(theme);
     appendChatMessage(`🐣 Dein Ei ist geschlüpft! Dein erstes Gotchi ist vom Element ${theme}.`);
-    hatchTimeoutId = null;
   }, 1800);
 }
 
