@@ -260,6 +260,7 @@ function spawnGotchi(theme) {
       }
     });
   }
+  applyLevelVisuals();
   scene.add(model);
 }
 
@@ -337,6 +338,7 @@ function levelUp() {
     baseColor = "#" + newColor.getHexString();
     localStorage.setItem('gotchiColor', baseColor);
   }
+  applyLevelVisuals();
   // Push-Benachrichtigung bei Level-Up
   notify("🎉 Dein Gotchi ist auf Level " + level + " aufgestiegen!");
 }
@@ -430,8 +432,8 @@ document.getElementById('feed').addEventListener('click', function() {
     const oldHunger = hunger;
     hunger += 20;
     if (hunger > 100) hunger = 100;
-    // XP nur vergeben, wenn Hunger wirklich niedrig war (< 80)
-    if (oldHunger < 80) {
+    // XP vergeben, wenn Hunger tatsächlich aufgefüllt wurde
+    if (oldHunger < 100) {
       xp += 10;
     }
     lastActionTime = Date.now();
@@ -461,8 +463,8 @@ document.getElementById('play').addEventListener('click', function() {
     const oldMood = mood;
     mood += 20;
     if (mood > 100) mood = 100;
-    // XP nur vergeben, wenn Laune < 80
-    if (oldMood < 80) {
+    // XP vergeben, wenn Laune tatsächlich aufgefüllt wurde
+    if (oldMood < 100) {
       xp += 10;
     }
     lastActionTime = Date.now();
@@ -489,8 +491,8 @@ document.getElementById('sleep').addEventListener('click', function() {
     const oldEnergy = energy;
     energy += 20;
     if (energy > 100) energy = 100;
-    // XP nur vergeben, wenn Energie < 80
-    if (oldEnergy < 80) {
+    // XP vergeben, wenn Energie tatsächlich aufgefüllt wurde
+    if (oldEnergy < 100) {
       xp += 10;
     }
     lastActionTime = Date.now();
