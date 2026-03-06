@@ -21,6 +21,10 @@ const apiKeyInput = document.getElementById('api-key-input');
 const saveApiKeyButton = document.getElementById('save-api-key');
 const clearApiKeyButton = document.getElementById('clear-api-key');
 const apiKeyStatus = document.getElementById('api-key-status');
+const gotchiThemeSelect = document.getElementById('gotchi-theme-select');
+const saveGotchiThemeButton = document.getElementById('save-gotchi-theme');
+const randomGotchiThemeButton = document.getElementById('random-gotchi-theme');
+const gotchiThemeStatus = document.getElementById('gotchi-theme-status');
 // Emoji-Overlay für Gesichtsausdruck
 const moodEmoji = document.createElement('div');
 moodEmoji.className = 'mood-emoji';
@@ -123,6 +127,21 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf0f0f0);
 const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
 let renderer = null;
+let model = null;
+let eggMesh = null;
+let currentTheme = null;
+let hatchTimeoutId = null;
+
+const GOTCHI_THEME_STORAGE = 'gotchiTheme';
+const GOTCHI_HATCHED_STORAGE = 'gotchiHasHatched';
+const GOTCHI_THEMES = ['Feuer', 'Wasser', 'Erde', 'Luft', 'Metall'];
+const THEME_COLORS = {
+  Feuer: { body: 0xff7043, accent: 0xffca28 },
+  Wasser: { body: 0x42a5f5, accent: 0x80deea },
+  Erde: { body: 0x8d6e63, accent: 0x8bc34a },
+  Luft: { body: 0xb3e5fc, accent: 0xffffff },
+  Metall: { body: 0x90a4ae, accent: 0xe0e0e0 }
+};
 
 try {
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -146,47 +165,199 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
 dirLight.position.set(0, 50, 50);
 scene.add(dirLight);
 
-// FBX-Modell laden
-let model = null;
-if (renderer) {
-  const loader = typeof THREE.FBXLoader !== 'undefined' ? new THREE.FBXLoader() : new FBXLoader();
-  loader.load('models/gotchi.fbx', function(object) {
-  model = object;
-  // Gespeicherte Farbe anwenden (falls vorhanden)
+camera.position.set(0, 0.8, 8);
+
+function createEgg() {
+  const group = new THREE.Group();
+
+  const shellMaterial = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.8 });
+  const egg = new THREE.Mesh(new THREE.SphereGeometry(1.25, 32, 32), shellMaterial);
+  egg.scale.set(0.95, 1.2, 0.95);
+  group.add(egg);
+
+  const crackMaterial = new THREE.MeshStandardMaterial({ color: 0xd6d6d6, roughness: 1 });
+  for (let i = 0; i < 6; i++) {
+    const crack = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.45, 0.02), crackMaterial);
+    crack.position.set(Math.sin(i) * 0.55, -0.1 + i * 0.04, Math.cos(i) * 0.55);
+    crack.rotation.y = i;
+    group.add(crack);
+  }
+
+  return group;
+}
+
+function createGotchi(theme) {
+  const palette = THEME_COLORS[theme] || THEME_COLORS.Feuer;
+  const group = new THREE.Group();
+
+  const bodyMaterial = new THREE.MeshStandardMaterial({
+    color: palette.body,
+    roughness: 0.55,
+    metalness: theme === 'Metall' ? 0.8 : 0.2
+  });
+  const body = new THREE.Mesh(new THREE.SphereGeometry(1.15, 32, 32), bodyMaterial);
+  body.position.y = 0.35;
+  group.add(body);
+
+  const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0x111111 });
+  const eyeLeft = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), eyeMaterial);
+  const eyeRight = eyeLeft.clone();
+  eyeLeft.position.set(-0.33, 0.55, 1.0);
+  eyeRight.position.set(0.33, 0.55, 1.0);
+  group.add(eyeLeft);
+  group.add(eyeRight);
+
+  const accentMaterial = new THREE.MeshStandardMaterial({
+    color: palette.accent,
+    emissive: palette.accent,
+    emissiveIntensity: theme === 'Feuer' ? 0.3 : 0.1,
+    metalness: theme === 'Metall' ? 0.9 : 0.1
+  });
+
+  if (theme === 'Feuer') {
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.8, 16), accentMaterial);
+    flame.position.set(0, 1.7, 0);
+    group.add(flame);
+  } else if (theme === 'Wasser') {
+    const drop = new THREE.Mesh(new THREE.SphereGeometry(0.23, 16, 16), accentMaterial);
+    drop.scale.set(0.8, 1.4, 0.8);
+    drop.position.set(0, 1.6, 0);
+    group.add(drop);
+  } else if (theme === 'Erde') {
+    const leaf = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.12, 0.2), accentMaterial);
+    leaf.rotation.z = 0.45;
+    leaf.position.set(0, 1.45, 0);
+    group.add(leaf);
+  } else if (theme === 'Luft') {
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.08, 12, 48), accentMaterial);
+    halo.rotation.x = Math.PI / 2;
+    halo.position.set(0, 1.55, 0);
+    group.add(halo);
+  } else if (theme === 'Metall') {
+    const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.8, 12), accentMaterial);
+    antenna.position.set(0, 1.55, 0);
+    group.add(antenna);
+    const node = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 16), accentMaterial);
+    node.position.set(0, 1.95, 0);
+    group.add(node);
+  }
+
+  return group;
+}
+
+function pickRandomTheme() {
+  const index = Math.floor(Math.random() * GOTCHI_THEMES.length);
+  return GOTCHI_THEMES[index];
+}
+
+function updateThemeStatus() {
+  if (!gotchiThemeStatus) return;
+  if (!currentTheme) {
+    gotchiThemeStatus.textContent = 'Noch kein Modell gesetzt.';
+    return;
+  }
+  gotchiThemeStatus.textContent = `Aktuelles Modell: ${currentTheme}`;
+}
+
+function setCurrentTheme(theme) {
+  if (!GOTCHI_THEMES.includes(theme)) return;
+  currentTheme = theme;
+  localStorage.setItem(GOTCHI_THEME_STORAGE, theme);
+  localStorage.setItem(GOTCHI_HATCHED_STORAGE, '1');
+  if (gotchiThemeSelect) {
+    gotchiThemeSelect.value = theme;
+  }
+  updateThemeStatus();
+}
+
+function initModelControls() {
+  const storedTheme = localStorage.getItem(GOTCHI_THEME_STORAGE);
+  if (storedTheme && GOTCHI_THEMES.includes(storedTheme)) {
+    currentTheme = storedTheme;
+  }
+  if (gotchiThemeSelect) {
+    gotchiThemeSelect.value = currentTheme && GOTCHI_THEMES.includes(currentTheme) ? currentTheme : GOTCHI_THEMES[0];
+  }
+
+  if (saveGotchiThemeButton) {
+    saveGotchiThemeButton.addEventListener('click', function() {
+      if (!gotchiThemeSelect) return;
+      const theme = gotchiThemeSelect.value;
+      if (!GOTCHI_THEMES.includes(theme)) return;
+      if (hatchTimeoutId) {
+        clearTimeout(hatchTimeoutId);
+        hatchTimeoutId = null;
+      }
+      if (eggMesh) {
+        scene.remove(eggMesh);
+        eggMesh = null;
+      }
+      setCurrentTheme(theme);
+      spawnGotchi(theme);
+      appendChatMessage(`✨ Modell gewechselt: Dein Gotchi ist jetzt ${theme}.`);
+    });
+  }
+
+  if (randomGotchiThemeButton) {
+    randomGotchiThemeButton.addEventListener('click', function() {
+      const theme = pickRandomTheme();
+      if (gotchiThemeSelect) {
+        gotchiThemeSelect.value = theme;
+      }
+      if (saveGotchiThemeButton) {
+        saveGotchiThemeButton.click();
+      }
+    });
+  }
+
+  updateThemeStatus();
+}
+
+function spawnGotchi(theme) {
+  if (model) {
+    scene.remove(model);
+  }
+  model = createGotchi(theme);
   if (baseColor) {
     model.traverse(function(child) {
       if (child.isMesh && child.material) {
         child.material.color.set(baseColor);
       }
     });
-  } else {
-    // Falls keine Farbe gespeichert, Standardfarbe aus Modell übernehmen
-    model.traverse(function(child) {
-      if (!baseColor && child.isMesh && child.material && child.material.color) {
-        baseColor = "#" + child.material.color.getHexString();
-        localStorage.setItem('gotchiColor', baseColor);
-      }
-    });
-  }
-  // Modell zentrieren und an Kameraausschnitt anpassen
-  const box = new THREE.Box3().setFromObject(model);
-  const center = box.getCenter(new THREE.Vector3());
-  model.position.x -= center.x;
-  model.position.y -= center.y;
-  model.position.z -= center.z;
-  const sphere = box.getBoundingSphere(new THREE.Sphere());
-  const radius = sphere.radius;
-  if (radius > 0) {
-    const fov = camera.fov * Math.PI / 180;
-    const dist = radius / Math.sin(fov / 2);
-    camera.position.set(0, 0, dist * 1.2);
-  } else {
-    camera.position.set(0, 0, 50);
   }
   scene.add(model);
-  renderScene();  // Erste Darstellung
-  });
 }
+
+function hatchFirstGotchiIfNeeded() {
+  if (!renderer) return;
+
+  const storedTheme = localStorage.getItem(GOTCHI_THEME_STORAGE);
+  const hasHatched = localStorage.getItem(GOTCHI_HATCHED_STORAGE) === '1';
+
+  if (storedTheme && hasHatched) {
+    setCurrentTheme(storedTheme);
+    spawnGotchi(storedTheme);
+    return;
+  }
+
+  eggMesh = createEgg();
+  scene.add(eggMesh);
+
+  hatchTimeoutId = setTimeout(function() {
+    if (eggMesh) {
+      scene.remove(eggMesh);
+      eggMesh = null;
+    }
+    const theme = pickRandomTheme();
+    setCurrentTheme(theme);
+    spawnGotchi(theme);
+    appendChatMessage(`🐣 Dein Ei ist geschlüpft! Dein erstes Gotchi ist vom Element ${theme}.`);
+    hatchTimeoutId = null;
+  }, 1800);
+}
+
+initModelControls();
+hatchFirstGotchiIfNeeded();
 
 // Bei Fenstergrößenänderung Canvas anpassen
 window.addEventListener('resize', function() {
@@ -202,8 +373,13 @@ window.addEventListener('resize', function() {
 // Animationsschleife (kontinuierliches Rendering)
 function animate() {
   requestAnimationFrame(animate);
-  // Optional: Modell langsam rotieren (deaktiviert)
-  // if (model) model.rotation.y += 0.002;
+  if (model && !dead) {
+    model.rotation.y += 0.004;
+    model.position.y = Math.sin(Date.now() * 0.002) * 0.08;
+  }
+  if (eggMesh) {
+    eggMesh.rotation.y += 0.015;
+  }
   renderScene();
 }
 animate();

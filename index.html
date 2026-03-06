@@ -6,7 +6,6 @@
   <title>Gotchi-AI</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/three@0.127.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.127.0/examples/js/loaders/FBXLoader.js"></script>
 </head>
 <body>
   <main id="game-container">
@@ -18,6 +17,23 @@
     <!-- 💬 Chat-Anzeige -->
     <div id="chat" class="chat-box">Ich sag dir gleich, wie's mir geht...</div>
     <button id="talk" type="button">Wie geht’s dir?</button>
+
+
+    <section class="model-config">
+      <label for="gotchi-theme-select">Gotchi-Element</label>
+      <div class="model-config-row">
+        <select id="gotchi-theme-select">
+          <option value="Feuer">Feuer</option>
+          <option value="Wasser">Wasser</option>
+          <option value="Erde">Erde</option>
+          <option value="Luft">Luft</option>
+          <option value="Metall">Metall</option>
+        </select>
+        <button id="save-gotchi-theme" type="button">Modell setzen</button>
+        <button id="random-gotchi-theme" type="button">Zufällig</button>
+      </div>
+      <small id="gotchi-theme-status"></small>
+    </section>
 
     <section class="api-config">
       <label for="api-key-input">OpenAI API Key (nur lokal im Browser)</label>
