@@ -14,6 +14,13 @@ const xpBar = document.getElementById('xp-bar');
 const levelNum = document.getElementById('level-num');
 const ageDisplay = document.getElementById('age');
 const chatBox = document.getElementById('chat');
+const hungerValue = document.getElementById('hunger-value');
+const moodValue = document.getElementById('mood-value');
+const energyValue = document.getElementById('energy-value');
+const apiKeyInput = document.getElementById('api-key-input');
+const saveApiKeyButton = document.getElementById('save-api-key');
+const clearApiKeyButton = document.getElementById('clear-api-key');
+const apiKeyStatus = document.getElementById('api-key-status');
 // Emoji-Overlay für Gesichtsausdruck
 const moodEmoji = document.createElement('div');
 moodEmoji.className = 'mood-emoji';
@@ -73,6 +80,9 @@ function updateUI() {
   moodBar.value = mood;
   energyBar.value = energy;
   xpBar.value = xp;
+  hungerValue.textContent = String(Math.round(hunger));
+  moodValue.textContent = String(Math.round(mood));
+  energyValue.textContent = String(Math.round(energy));
   levelNum.textContent = level;
   // Alter berechnen
   let now = Date.now();
@@ -112,9 +122,22 @@ const height = container.clientHeight;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf0f0f0);
 const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(width, height);
-container.appendChild(renderer.domElement);
+let renderer = null;
+
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(width, height);
+  container.appendChild(renderer.domElement);
+} catch (error) {
+  console.error('WebGL konnte nicht initialisiert werden:', error);
+  container.innerHTML = '<p style="padding:1rem;">3D-Ansicht ist auf diesem Gerät/Browser nicht verfügbar.</p>';
+}
+
+function renderScene() {
+  if (renderer) {
+    renderer.render(scene, camera);
+  }
+}
 
 // Lichtquellen hinzufügen
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
@@ -125,8 +148,9 @@ scene.add(dirLight);
 
 // FBX-Modell laden
 let model = null;
-const loader = typeof THREE.FBXLoader !== 'undefined' ? new THREE.FBXLoader() : new FBXLoader();
-loader.load('models/gotchi.fbx', function(object) {
+if (renderer) {
+  const loader = typeof THREE.FBXLoader !== 'undefined' ? new THREE.FBXLoader() : new FBXLoader();
+  loader.load('models/gotchi.fbx', function(object) {
   model = object;
   // Gespeicherte Farbe anwenden (falls vorhanden)
   if (baseColor) {
@@ -160,17 +184,19 @@ loader.load('models/gotchi.fbx', function(object) {
     camera.position.set(0, 0, 50);
   }
   scene.add(model);
-  renderer.render(scene, camera);  // Erste Darstellung
-});
+  renderScene();  // Erste Darstellung
+  });
+}
 
 // Bei Fenstergrößenänderung Canvas anpassen
 window.addEventListener('resize', function() {
   const w = container.clientWidth;
   const h = container.clientHeight;
+  if (!renderer) return;
   renderer.setSize(w, h);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
-  renderer.render(scene, camera);
+  renderScene();
 });
 
 // Animationsschleife (kontinuierliches Rendering)
@@ -178,7 +204,7 @@ function animate() {
   requestAnimationFrame(animate);
   // Optional: Modell langsam rotieren (deaktiviert)
   // if (model) model.rotation.y += 0.002;
-  renderer.render(scene, camera);
+  renderScene();
 }
 animate();
 
@@ -315,7 +341,7 @@ document.getElementById('feed').addEventListener('click', function() {
     localStorage.setItem('gotchiXP', xp);
     // UI aktualisieren
     updateUI();
-    renderer.render(scene, camera);
+    renderScene();
   }
 });
 
@@ -343,7 +369,7 @@ document.getElementById('play').addEventListener('click', function() {
     localStorage.setItem('gotchiLevel', level);
     localStorage.setItem('gotchiXP', xp);
     updateUI();
-    renderer.render(scene, camera);
+    renderScene();
   }
 });
 
@@ -371,14 +397,63 @@ document.getElementById('sleep').addEventListener('click', function() {
     localStorage.setItem('gotchiLevel', level);
     localStorage.setItem('gotchiXP', xp);
     updateUI();
-    renderer.render(scene, camera);
+    renderScene();
   }
 });
 
 // GPT-Button ("Wie geht's dir?") – holt Antwort von OpenAI API
-const OPENAI_API_KEY = "YOUR_OPENAI_API_KEY";
+const OPENAI_KEY_STORAGE = 'gotchiOpenAIKey';
+
+function getOpenAiKey() {
+  return (window.OPENAI_API_KEY || localStorage.getItem(OPENAI_KEY_STORAGE) || '').trim();
+}
+
+function updateApiKeyStatus() {
+  const key = getOpenAiKey();
+  if (window.OPENAI_API_KEY) {
+    apiKeyStatus.textContent = 'Externer Key erkannt (window.OPENAI_API_KEY).';
+  } else if (key) {
+    apiKeyStatus.textContent = 'Lokaler API-Key gespeichert.';
+  } else {
+    apiKeyStatus.textContent = 'Kein API-Key gespeichert. Chat nutzt lokale Fallback-Antwort.';
+  }
+}
+
+function appendChatMessage(text) {
+  if (chatBox.textContent) {
+    chatBox.textContent += "\n" + text;
+  } else {
+    chatBox.textContent = text;
+  }
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+if (saveApiKeyButton) {
+  saveApiKeyButton.addEventListener('click', function() {
+    const value = apiKeyInput.value.trim();
+    if (!value) {
+      apiKeyStatus.textContent = 'Bitte zuerst einen API-Key eingeben.';
+      return;
+    }
+    localStorage.setItem(OPENAI_KEY_STORAGE, value);
+    apiKeyInput.value = '';
+    updateApiKeyStatus();
+  });
+}
+
+if (clearApiKeyButton) {
+  clearApiKeyButton.addEventListener('click', function() {
+    localStorage.removeItem(OPENAI_KEY_STORAGE);
+    apiKeyInput.value = '';
+    updateApiKeyStatus();
+  });
+}
+
+updateApiKeyStatus();
+
 document.getElementById('talk').addEventListener('click', async function() {
   if (dead) return;
+  const OPENAI_API_KEY = getOpenAiKey();
   // GPT-Anfrage vorbereiten
   const messages = [
     {
@@ -390,6 +465,12 @@ document.getElementById('talk').addEventListener('click', async function() {
       content: `Wie geht's dir? (Hunger: ${Math.round(hunger)}/100, Laune: ${Math.round(mood)}/100, Energie: ${Math.round(energy)}/100)`
     }
   ];
+
+  if (!OPENAI_API_KEY) {
+    appendChatMessage(`Ich fühle mich gerade ${Math.round((hunger + mood + energy) / 3)}% fit. Trag unten deinen API-Key ein, dann antworte ich dynamischer.`);
+    return;
+  }
+
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: 'POST',
@@ -398,28 +479,26 @@ document.getElementById('talk').addEventListener('click', async function() {
         'Authorization': 'Bearer ' + OPENAI_API_KEY
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o-mini",
         messages: messages,
         max_tokens: 50,
         temperature: 0.7
       })
     });
+
     if (!response.ok) {
-      console.error("GPT API Fehler:", response.statusText);
+      appendChatMessage("Ich kann gerade nicht auf den KI-Service zugreifen.");
+      console.error("GPT API Fehler:", response.status, response.statusText);
       return;
     }
+
     const data = await response.json();
-    let answer = data.choices && data.choices.length ? data.choices[0].message.content.trim() : "";
+    const answer = data.choices && data.choices.length ? data.choices[0].message.content.trim() : "";
     if (answer) {
-      // Antwort im Chat-Fenster anzeigen
-      if (chatBox.textContent) {
-        chatBox.textContent += "\n" + answer;
-      } else {
-        chatBox.textContent = answer;
-      }
-      chatBox.scrollTop = chatBox.scrollHeight;
+      appendChatMessage(answer);
     }
   } catch (error) {
+    appendChatMessage("Netzwerkfehler – probier es gleich nochmal.");
     console.error("Netzwerk- oder API-Fehler bei GPT-Anfrage:", error);
   }
 });
