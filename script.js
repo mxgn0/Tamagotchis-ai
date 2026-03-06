@@ -21,6 +21,10 @@ const apiKeyInput = document.getElementById('api-key-input');
 const saveApiKeyButton = document.getElementById('save-api-key');
 const clearApiKeyButton = document.getElementById('clear-api-key');
 const apiKeyStatus = document.getElementById('api-key-status');
+const gotchiThemeSelect = document.getElementById('gotchi-theme-select');
+const saveGotchiThemeButton = document.getElementById('save-gotchi-theme');
+const randomGotchiThemeButton = document.getElementById('random-gotchi-theme');
+const gotchiThemeStatus = document.getElementById('gotchi-theme-status');
 // Emoji-Overlay für Gesichtsausdruck
 const moodEmoji = document.createElement('div');
 moodEmoji.className = 'mood-emoji';
