@@ -30,6 +30,21 @@ const moodEmoji = document.createElement('div');
 moodEmoji.className = 'mood-emoji';
 document.getElementById('model-container').appendChild(moodEmoji);
 
+function removeLegacyThemeControls() {
+  const legacySection = document.querySelector('.model-config');
+  if (legacySection) {
+    legacySection.remove();
+  }
+  ['gotchi-theme-select', 'save-gotchi-theme', 'random-gotchi-theme', 'gotchi-theme-status'].forEach(function(id) {
+    const legacyNode = document.getElementById(id);
+    if (legacyNode) {
+      legacyNode.remove();
+    }
+  });
+}
+
+removeLegacyThemeControls();
+
 // Gespeicherten Zustand laden (falls vorhanden)
 if (localStorage.getItem('gotchiBirth')) {
   birthTime = parseInt(localStorage.getItem('gotchiBirth'));
@@ -56,6 +71,11 @@ if (localStorage.getItem('gotchiHunger')) {
   level = parseInt(localStorage.getItem('gotchiLevel'));
   xp = parseInt(localStorage.getItem('gotchiXP'));
   baseColor = localStorage.getItem('gotchiColor'); // kann null sein, falls noch nicht gesetzt
+  if (!baseColor || !/^#?[0-9a-fA-F]{6}$/.test(baseColor)) {
+    baseColor = null;
+  } else if (baseColor.charAt(0) !== '#') {
+    baseColor = '#' + baseColor;
+  }
 } else {
   hunger = 100;
   mood = 100;
@@ -124,11 +144,12 @@ const container = document.getElementById('model-container');
 const width = container.clientWidth;
 const height = container.clientHeight;
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xf0f0f0);
+scene.background = new THREE.Color(0xe4ebf5);
 const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
 let renderer = null;
 let model = null;
 let eggMesh = null;
+let hatchTimeoutId = null;
 
 const GOTCHI_THEME_STORAGE = 'gotchiTheme';
 const GOTCHI_HATCHED_STORAGE = 'gotchiHasHatched';
@@ -157,18 +178,21 @@ function renderScene() {
 }
 
 // Lichtquellen hinzufügen
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
 scene.add(ambientLight);
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
 dirLight.position.set(0, 50, 50);
 scene.add(dirLight);
+const rimLight = new THREE.DirectionalLight(0xb0c4ff, 0.6);
+rimLight.position.set(-20, 20, -30);
+scene.add(rimLight);
 
 camera.position.set(0, 0.8, 8);
 
 function createEgg() {
   const group = new THREE.Group();
 
-  const shellMaterial = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.8 });
+  const shellMaterial = new THREE.MeshStandardMaterial({ color: 0xfff6de, roughness: 0.7 });
   const egg = new THREE.Mesh(new THREE.SphereGeometry(1.25, 32, 32), shellMaterial);
   egg.scale.set(0.95, 1.2, 0.95);
   group.add(egg);
@@ -194,12 +218,15 @@ function createGotchi(theme) {
     metalness: theme === 'Metall' ? 0.8 : 0.2
   });
   const body = new THREE.Mesh(new THREE.SphereGeometry(1.15, 32, 32), bodyMaterial);
+  body.name = 'gotchi-body';
   body.position.y = 0.35;
   group.add(body);
 
   const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0x111111 });
   const eyeLeft = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), eyeMaterial);
+  eyeLeft.name = 'gotchi-eye';
   const eyeRight = eyeLeft.clone();
+  eyeRight.name = 'gotchi-eye';
   eyeLeft.position.set(-0.33, 0.55, 1.0);
   eyeRight.position.set(0.33, 0.55, 1.0);
   group.add(eyeLeft);
@@ -248,6 +275,46 @@ function pickRandomTheme() {
   return GOTCHI_THEMES[index];
 }
 
+function setCurrentTheme(theme) {
+  if (!GOTCHI_THEMES.includes(theme)) return;
+  localStorage.setItem(GOTCHI_THEME_STORAGE, theme);
+  localStorage.setItem(GOTCHI_HATCHED_STORAGE, '1');
+}
+
+function applyLevelVisuals() {
+  if (!model) return;
+
+  const levelScale = 1 + Math.min((level - 1) * 0.05, 0.6);
+  model.scale.set(levelScale, levelScale, levelScale);
+
+  const oldAura = model.getObjectByName('level-aura');
+  if (oldAura) {
+    model.remove(oldAura);
+  }
+
+  const auraCount = Math.min(Math.floor(level / 3), 4);
+  if (auraCount <= 0) return;
+
+  const auraGroup = new THREE.Group();
+  auraGroup.name = 'level-aura';
+  const auraMaterial = new THREE.MeshStandardMaterial({
+    color: 0xfff176,
+    emissive: 0xfff176,
+    emissiveIntensity: 0.35,
+    transparent: true,
+    opacity: 0.85
+  });
+
+  for (let i = 0; i < auraCount; i++) {
+    const angle = (Math.PI * 2 * i) / auraCount;
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 12), auraMaterial);
+    orb.position.set(Math.cos(angle) * 1.6, 0.9 + (i % 2) * 0.25, Math.sin(angle) * 1.6);
+    auraGroup.add(orb);
+  }
+
+  model.add(auraGroup);
+}
+
 function spawnGotchi(theme) {
   if (model) {
     scene.remove(model);
@@ -270,7 +337,7 @@ function hatchFirstGotchiIfNeeded() {
   const storedTheme = localStorage.getItem(GOTCHI_THEME_STORAGE);
   const hasHatched = localStorage.getItem(GOTCHI_HATCHED_STORAGE) === '1';
 
-  if (storedTheme && hasHatched) {
+  if (storedTheme && hasHatched && GOTCHI_THEMES.includes(storedTheme)) {
     spawnGotchi(storedTheme);
     return;
   }
@@ -278,16 +345,22 @@ function hatchFirstGotchiIfNeeded() {
   eggMesh = createEgg();
   scene.add(eggMesh);
 
-  setTimeout(function() {
+  hatchTimeoutId = setTimeout(function() {
     if (eggMesh) {
       scene.remove(eggMesh);
       eggMesh = null;
     }
     const theme = pickRandomTheme();
-    localStorage.setItem(GOTCHI_THEME_STORAGE, theme);
-    localStorage.setItem(GOTCHI_HATCHED_STORAGE, '1');
+    setCurrentTheme(theme);
     spawnGotchi(theme);
+    if (model) {
+      model.scale.multiplyScalar(0.65);
+      setTimeout(function() {
+        applyLevelVisuals();
+      }, 260);
+    }
     appendChatMessage(`🐣 Dein Ei ist geschlüpft! Dein erstes Gotchi ist vom Element ${theme}.`);
+    hatchTimeoutId = null;
   }, 1800);
 }
 
