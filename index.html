@@ -9,40 +9,62 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.127.0/examples/js/loaders/FBXLoader.js"></script>
 </head>
 <body>
-  <h1>Gotchi-AI</h1>
+  <main id="game-container">
+    <h1>Gotchi-AI</h1>
 
-  <!-- 🐣 3D-Modell -->
-  <div id="model-container" style="width: 400px; height: 400px; margin: auto;"></div>
+    <!-- 🐣 3D-Modell -->
+    <div id="model-container"></div>
 
-  <!-- 💬 Chat-Anzeige -->
-  <div id="chat" class="chatbox">Ich sag dir gleich, wie's mir geht...</div>
-  <div id="loadingBar" class="loading-bar-container" style="display: none;">
-    <div class="loading-bar"></div>
-  </div>
-  <button onclick="askGotchi()">Wie geht’s dir?</button>
+    <!-- 💬 Chat-Anzeige -->
+    <div id="chat" class="chat-box">Ich sag dir gleich, wie's mir geht...</div>
+    <button id="talk" type="button">Wie geht’s dir?</button>
 
-  <!-- 📊 Statuswerte -->
-  <div class="stats">
-    <p>Hunger: <span id="hunger">50</span></p>
-    <p>Laune: <span id="mood">50</span></p>
-    <p>Energie: <span id="energy">50</span></p>
-  </div>
+    <section class="api-config">
+      <label for="api-key-input">OpenAI API Key (nur lokal im Browser)</label>
+      <div class="api-config-row">
+        <input id="api-key-input" type="password" placeholder="sk-..." autocomplete="off" />
+        <button id="save-api-key" type="button">Key speichern</button>
+        <button id="clear-api-key" type="button">Key löschen</button>
+      </div>
+      <small id="api-key-status"></small>
+    </section>
 
-  <!-- ⏱️ Level, XP & Alter -->
-  <div class="status">
-    <p>Alter: <span id="age">0d 0h 0m</span></p>
-    <p>Level: <span id="level">1</span></p>
-    <div class="progress-bar-container">
-      <progress id="xpProgress" value="0" max="60"></progress>
+    <!-- 📊 Statuswerte -->
+    <section id="stats" class="stats">
+      <div>
+        <label for="hunger-bar">Hunger</label>
+        <progress id="hunger-bar" value="100" max="100"></progress>
+        <span id="hunger-value">100</span>
+      </div>
+      <div>
+        <label for="mood-bar">Laune</label>
+        <progress id="mood-bar" value="100" max="100"></progress>
+        <span id="mood-value">100</span>
+      </div>
+      <div>
+        <label for="energy-bar">Energie</label>
+        <progress id="energy-bar" value="100" max="100"></progress>
+        <span id="energy-value">100</span>
+      </div>
+    </section>
+
+    <!-- ⏱️ Level, XP & Alter -->
+    <section class="status">
+      <p id="age">Alter: 0 Tage, 0 Stunden, 0 Minuten</p>
+      <p>Level: <span id="level-num">1</span></p>
+      <div class="progress-bar-container">
+        <label for="xp-bar">XP</label>
+        <progress id="xp-bar" value="0" max="100"></progress>
+      </div>
+    </section>
+
+    <!-- 🎮 Interaktionen -->
+    <div id="actions" class="buttons">
+      <button id="feed" type="button">Füttern</button>
+      <button id="play" type="button">Spielen</button>
+      <button id="sleep" type="button">Schlafen</button>
     </div>
-  </div>
-
-  <!-- 🎮 Interaktionen -->
-  <div class="buttons">
-    <button onclick="feed()">Füttern</button>
-    <button onclick="play()">Spielen</button>
-    <button onclick="sleep()">Schlafen</button>
-  </div>
+  </main>
 
   <script src="script.js"></script>
 </body>
