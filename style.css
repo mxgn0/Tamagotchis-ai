@@ -1,4 +1,3 @@
-/* Grundlegende Styles und Layout */
 body {
   margin: 0;
   padding: 0;
@@ -23,6 +22,7 @@ body {
   background: #f0f0f0;
   border: 1px solid #ccc;
   position: relative;
+  overflow: hidden;
 }
 
 .mood-emoji {
@@ -107,7 +107,6 @@ progress::-moz-progress-bar {
   border-radius: 5px;
 }
 
-/* Farben der Fortschrittsbalken für einzelne Werte */
 #hunger-bar::-webkit-progress-value {
   background: #ff9800;
 }
@@ -148,7 +147,6 @@ progress::-moz-progress-bar {
   gap: 10px;
 }
 
-
 .api-config {
   margin: 12px 0 16px;
   text-align: left;
@@ -184,37 +182,4 @@ progress::-moz-progress-bar {
   min-width: 34px;
   text-align: right;
   font-variant-numeric: tabular-nums;
-}
-
-
-.model-config {
-  margin: 12px 0 10px;
-  text-align: left;
-}
-
-.model-config label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 0.9rem;
-}
-
-.model-config-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 8px;
-}
-
-#gotchi-theme-select {
-  min-width: 0;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 0.95rem;
-  background: #fff;
-}
-
-#gotchi-theme-status {
-  display: block;
-  margin-top: 6px;
-  color: #555;
 }
