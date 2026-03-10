@@ -11,41 +11,21 @@
   <main id="game-container">
     <h1>Gotchi-AI</h1>
 
-    <!-- 🐣 3D-Modell -->
     <div id="model-container"></div>
 
-    <!-- 💬 Chat-Anzeige -->
     <div id="chat" class="chat-box">Ich sag dir gleich, wie's mir geht...</div>
     <button id="talk" type="button">Wie geht’s dir?</button>
 
-
-    <section class="model-config">
-      <label for="gotchi-theme-select">Gotchi-Element</label>
-      <div class="model-config-row">
-        <select id="gotchi-theme-select">
-          <option value="Feuer">Feuer</option>
-          <option value="Wasser">Wasser</option>
-          <option value="Erde">Erde</option>
-          <option value="Luft">Luft</option>
-          <option value="Metall">Metall</option>
-        </select>
-        <button id="save-gotchi-theme" type="button">Modell setzen</button>
-        <button id="random-gotchi-theme" type="button">Zufällig</button>
-      </div>
-      <small id="gotchi-theme-status"></small>
-    </section>
-
     <section class="api-config">
-      <label for="api-key-input">OpenAI API Key (nur lokal im Browser)</label>
+      <label for="api-key-input">Groq API Key (nur lokal im Browser)</label>
       <div class="api-config-row">
-        <input id="api-key-input" type="password" placeholder="sk-..." autocomplete="off" />
+        <input id="api-key-input" type="password" placeholder="gsk_..." autocomplete="off" />
         <button id="save-api-key" type="button">Key speichern</button>
         <button id="clear-api-key" type="button">Key löschen</button>
       </div>
       <small id="api-key-status"></small>
     </section>
 
-    <!-- 📊 Statuswerte -->
     <section id="stats" class="stats">
       <div>
         <label for="hunger-bar">Hunger</label>
@@ -64,7 +44,6 @@
       </div>
     </section>
 
-    <!-- ⏱️ Level, XP & Alter -->
     <section class="status">
       <p id="age">Alter: 0 Tage, 0 Stunden, 0 Minuten</p>
       <p>Level: <span id="level-num">1</span></p>
@@ -74,7 +53,6 @@
       </div>
     </section>
 
-    <!-- 🎮 Interaktionen -->
     <div id="actions" class="buttons">
       <button id="feed" type="button">Füttern</button>
       <button id="play" type="button">Spielen</button>
