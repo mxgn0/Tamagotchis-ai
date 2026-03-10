@@ -21,6 +21,7 @@ const apiKeyInput = document.getElementById('api-key-input');
 const saveApiKeyButton = document.getElementById('save-api-key');
 const clearApiKeyButton = document.getElementById('clear-api-key');
 const apiKeyStatus = document.getElementById('api-key-status');
+
 // Emoji-Overlay für Gesichtsausdruck
 const moodEmoji = document.createElement('div');
 moodEmoji.className = 'mood-emoji';
