@@ -21,29 +21,11 @@ const apiKeyInput = document.getElementById('api-key-input');
 const saveApiKeyButton = document.getElementById('save-api-key');
 const clearApiKeyButton = document.getElementById('clear-api-key');
 const apiKeyStatus = document.getElementById('api-key-status');
-const gotchiThemeSelect = document.getElementById('gotchi-theme-select');
-const saveGotchiThemeButton = document.getElementById('save-gotchi-theme');
-const randomGotchiThemeButton = document.getElementById('random-gotchi-theme');
-const gotchiThemeStatus = document.getElementById('gotchi-theme-status');
+
 // Emoji-Overlay für Gesichtsausdruck
 const moodEmoji = document.createElement('div');
 moodEmoji.className = 'mood-emoji';
 document.getElementById('model-container').appendChild(moodEmoji);
-
-function removeLegacyThemeControls() {
-  const legacySection = document.querySelector('.model-config');
-  if (legacySection) {
-    legacySection.remove();
-  }
-  ['gotchi-theme-select', 'save-gotchi-theme', 'random-gotchi-theme', 'gotchi-theme-status'].forEach(function(id) {
-    const legacyNode = document.getElementById(id);
-    if (legacyNode) {
-      legacyNode.remove();
-    }
-  });
-}
-
-removeLegacyThemeControls();
 
 // Gespeicherten Zustand laden (falls vorhanden)
 if (localStorage.getItem('gotchiBirth')) {
