@@ -33,58 +33,111 @@ export function createGotchi(theme) {
   const palette = THEME_COLORS[theme] || THEME_COLORS.Feuer;
   const group = new THREE.Group();
 
-  const bodyMaterial = new THREE.MeshStandardMaterial({
+  const skinMat = new THREE.MeshStandardMaterial({
     color: palette.body,
     roughness: 0.55,
-    metalness: theme === 'Metall' ? 0.8 : 0.2
+    metalness: theme === 'Metall' ? 0.8 : 0.15
   });
-  const body = new THREE.Mesh(new THREE.SphereGeometry(1.15, 32, 32), bodyMaterial);
-  body.name = 'gotchi-body';
-  body.position.y = 0.35;
-  group.add(body);
 
-  const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0x111111 });
-  const eyeLeft = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), eyeMaterial);
-  eyeLeft.name = 'gotchi-eye';
-  const eyeRight = eyeLeft.clone();
-  eyeRight.name = 'gotchi-eye';
-  eyeLeft.position.set(-0.33, 0.55, 1.0);
-  eyeRight.position.set(0.33, 0.55, 1.0);
-  group.add(eyeLeft);
-  group.add(eyeRight);
+  // Torso (leicht abgeflachte Kugel)
+  const torso = new THREE.Mesh(new THREE.SphereGeometry(0.92, 32, 32), skinMat);
+  torso.name = 'gotchi-body';
+  torso.scale.set(1.08, 0.92, 1.0);
+  torso.position.y = 0;
+  group.add(torso);
 
-  const accentMaterial = new THREE.MeshStandardMaterial({
+  // Kopf (etwas größer, sitzt oben auf dem Torso)
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.82, 32, 32), skinMat);
+  head.name = 'gotchi-body';
+  head.position.y = 1.45;
+  group.add(head);
+
+  // Augen mit Glanz-Punkt
+  const eyeMat   = new THREE.MeshStandardMaterial({ color: 0x111111 });
+  const glintMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.6 });
+  const eyeGeo   = new THREE.SphereGeometry(0.115, 16, 16);
+  const glintGeo = new THREE.SphereGeometry(0.038, 8, 8);
+
+  const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+  eyeL.position.set(-0.3, 1.56, 0.73);
+  eyeL.add(Object.assign(new THREE.Mesh(glintGeo, glintMat), { position: new THREE.Vector3(0.04, 0.05, 0.09) }));
+  group.add(eyeL);
+
+  const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+  eyeR.position.set(0.3, 1.56, 0.73);
+  eyeR.add(Object.assign(new THREE.Mesh(glintGeo, glintMat), { position: new THREE.Vector3(0.04, 0.05, 0.09) }));
+  group.add(eyeR);
+
+  // Wangenröte
+  const cheekMat = new THREE.MeshStandardMaterial({ color: 0xff8fa3, transparent: true, opacity: 0.45, roughness: 1 });
+  const cheekGeo = new THREE.SphereGeometry(0.18, 12, 12);
+  const cheekL = new THREE.Mesh(cheekGeo, cheekMat);
+  cheekL.scale.set(1, 0.55, 0.65);
+  cheekL.position.set(-0.5, 1.38, 0.65);
+  group.add(cheekL);
+  const cheekR = cheekL.clone();
+  cheekR.position.set(0.5, 1.38, 0.65);
+  group.add(cheekR);
+
+  // Arme (stumpfe Stummel)
+  const armGeo = new THREE.SphereGeometry(0.3, 16, 16);
+  const armL = new THREE.Mesh(armGeo, skinMat);
+  armL.name = 'gotchi-body';
+  armL.scale.set(0.62, 0.48, 0.58);
+  armL.position.set(-1.05, 0.05, 0.1);
+  group.add(armL);
+  const armR = new THREE.Mesh(armGeo, skinMat);
+  armR.name = 'gotchi-body';
+  armR.scale.set(0.62, 0.48, 0.58);
+  armR.position.set(1.05, 0.05, 0.1);
+  group.add(armR);
+
+  // Füße (runde Stummel)
+  const footGeo = new THREE.SphereGeometry(0.32, 16, 16);
+  const footL = new THREE.Mesh(footGeo, skinMat);
+  footL.name = 'gotchi-body';
+  footL.scale.set(0.85, 0.52, 1.05);
+  footL.position.set(-0.38, -0.95, 0.12);
+  group.add(footL);
+  const footR = new THREE.Mesh(footGeo, skinMat);
+  footR.name = 'gotchi-body';
+  footR.scale.set(0.85, 0.52, 1.05);
+  footR.position.set(0.38, -0.95, 0.12);
+  group.add(footR);
+
+  // Element-Accessoire oben auf dem Kopf
+  const accentMat = new THREE.MeshStandardMaterial({
     color: palette.accent,
     emissive: palette.accent,
-    emissiveIntensity: theme === 'Feuer' ? 0.3 : 0.1,
+    emissiveIntensity: theme === 'Feuer' ? 0.45 : 0.12,
     metalness: theme === 'Metall' ? 0.9 : 0.1
   });
 
   if (theme === 'Feuer') {
-    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.8, 16), accentMaterial);
-    flame.position.set(0, 1.7, 0);
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.72, 16), accentMat);
+    flame.position.set(0, 2.32, 0);
     group.add(flame);
   } else if (theme === 'Wasser') {
-    const drop = new THREE.Mesh(new THREE.SphereGeometry(0.23, 16, 16), accentMaterial);
-    drop.scale.set(0.8, 1.4, 0.8);
-    drop.position.set(0, 1.6, 0);
+    const drop = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), accentMat);
+    drop.scale.set(0.8, 1.35, 0.8);
+    drop.position.set(0, 2.35, 0);
     group.add(drop);
   } else if (theme === 'Erde') {
-    const leaf = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.12, 0.2), accentMaterial);
+    const leaf = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.18), accentMat);
     leaf.rotation.z = 0.45;
-    leaf.position.set(0, 1.45, 0);
+    leaf.position.set(0, 2.22, 0);
     group.add(leaf);
   } else if (theme === 'Luft') {
-    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.08, 12, 48), accentMaterial);
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.48, 0.07, 12, 48), accentMat);
     halo.rotation.x = Math.PI / 2;
-    halo.position.set(0, 1.55, 0);
+    halo.position.set(0, 2.3, 0);
     group.add(halo);
   } else if (theme === 'Metall') {
-    const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.8, 12), accentMaterial);
-    antenna.position.set(0, 1.55, 0);
+    const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.7, 12), accentMat);
+    antenna.position.set(0, 2.2, 0);
     group.add(antenna);
-    const node = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 16), accentMaterial);
-    node.position.set(0, 1.95, 0);
+    const node = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), accentMat);
+    node.position.set(0, 2.6, 0);
     group.add(node);
   }
 

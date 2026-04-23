@@ -39,9 +39,14 @@ export function renderScene() {
 
 export function animate() {
   requestAnimationFrame(animate);
+  const t = Date.now();
   if (refs.model && !state.dead) {
-    refs.model.rotation.y += 0.004;
-    refs.model.position.y = Math.sin(Date.now() * 0.002) * 0.08;
+    // Sanftes Schweben: zwei überlagerte Frequenzen für organisches Gefühl
+    refs.model.position.y = Math.sin(t * 0.0014) * 0.16 + Math.sin(t * 0.0031) * 0.04;
+    // Leichtes Wiegen links/rechts
+    refs.model.rotation.z = Math.sin(t * 0.0009) * 0.055;
+    // Minimales Nicken vor/zurück
+    refs.model.rotation.x = Math.sin(t * 0.0007 + 1.2) * 0.025;
   }
   if (refs.eggMesh) {
     refs.eggMesh.rotation.y += 0.015;
