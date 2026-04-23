@@ -2,7 +2,7 @@ import { state } from './state.js';
 import { scene, refs, webglRenderer } from './renderer.js';
 import { appendChatMessage } from './ui.js';
 
-const MODEL_PATH = './models/ChiniPose01_07.obj';
+const MODEL_PATH = './models/ChiniPose01_08.obj';
 let loadedOBJ = null;
 let modelBaseScale = 1;
 
