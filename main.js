@@ -3,7 +3,7 @@ import { initNotifications } from './modules/notifications.js';
 import { updateUI } from './modules/ui.js';
 import { animate, renderScene } from './modules/renderer.js';
 import { hatchFirstGotchiIfNeeded } from './modules/pet.js';
-import { startGameLoop, levelUp, die } from './modules/gameLoop.js';
+import { startGameLoop, levelUp } from './modules/gameLoop.js';
 import { initAI } from './modules/ai.js';
 
 // 1. State aus localStorage laden
