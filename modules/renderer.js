@@ -37,16 +37,53 @@ export function renderScene() {
   }
 }
 
+// Drag-to-Rotate: Maus + Touch
+let isDragging = false;
+let dragPrevX = 0;
+let dragPrevY = 0;
+let manualRotY = 0;
+let manualRotX = 0;
+
+container.addEventListener('mousedown', e => {
+  isDragging = true;
+  dragPrevX = e.clientX;
+  dragPrevY = e.clientY;
+});
+window.addEventListener('mouseup', () => { isDragging = false; });
+window.addEventListener('mousemove', e => {
+  if (!isDragging || !refs.model) return;
+  manualRotY += (e.clientX - dragPrevX) * 0.012;
+  manualRotX += (e.clientY - dragPrevY) * 0.006;
+  manualRotX = Math.max(-0.6, Math.min(0.6, manualRotX));
+  dragPrevX = e.clientX;
+  dragPrevY = e.clientY;
+});
+
+container.addEventListener('touchstart', e => {
+  isDragging = true;
+  dragPrevX = e.touches[0].clientX;
+  dragPrevY = e.touches[0].clientY;
+  e.preventDefault();
+}, { passive: false });
+window.addEventListener('touchend', () => { isDragging = false; });
+window.addEventListener('touchmove', e => {
+  if (!isDragging || !refs.model) return;
+  manualRotY += (e.touches[0].clientX - dragPrevX) * 0.012;
+  manualRotX += (e.touches[0].clientY - dragPrevY) * 0.006;
+  manualRotX = Math.max(-0.6, Math.min(0.6, manualRotX));
+  dragPrevX = e.touches[0].clientX;
+  dragPrevY = e.touches[0].clientY;
+  e.preventDefault();
+}, { passive: false });
+
 export function animate() {
   requestAnimationFrame(animate);
   const t = Date.now();
   if (refs.model && !state.dead) {
-    // Sanftes Schweben: zwei überlagerte Frequenzen für organisches Gefühl
     refs.model.position.y = Math.sin(t * 0.0014) * 0.16 + Math.sin(t * 0.0031) * 0.04;
-    // Leichtes Wiegen links/rechts
+    refs.model.rotation.y = manualRotY;
     refs.model.rotation.z = Math.sin(t * 0.0009) * 0.055;
-    // Minimales Nicken vor/zurück
-    refs.model.rotation.x = Math.sin(t * 0.0007 + 1.2) * 0.025;
+    refs.model.rotation.x = manualRotX + Math.sin(t * 0.0007 + 1.2) * 0.025;
   }
   if (refs.eggMesh) {
     refs.eggMesh.rotation.y += 0.015;
