@@ -19,9 +19,9 @@ if (Date.now() - state.lastActionTime > 36 * 60 * 60 * 1000) {
 // 3. UI mit geladenen Werten befüllen
 updateUI();
 
-// 4. OBJ-Modell laden, dann Pet spawnen (Fallback auf prozedurales Modell bei Fehler)
-await loadGotchiModel().catch(e => console.warn('OBJ nicht geladen, Fallback aktiv:', e));
-hatchFirstGotchiIfNeeded();
+// 4. OBJ parallel laden + Ei sofort zeigen — kein Blocking mehr
+const modelReady = loadGotchiModel();
+hatchFirstGotchiIfNeeded(modelReady);
 
 // 5. Render-Loop starten
 animate();

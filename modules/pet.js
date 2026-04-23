@@ -7,16 +7,21 @@ let loadedOBJ = null;
 let modelBaseScale = 1;
 
 export function loadGotchiModel() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
+    // Nach 10s aufgeben und Fallback nutzen
+    const giveUp = setTimeout(() => {
+      console.warn('OBJ Timeout – Fallback aktiv');
+      resolve();
+    }, 10000);
+
     const loader = new THREE.OBJLoader();
     loader.load(
       MODEL_PATH,
       obj => {
+        clearTimeout(giveUp);
         const box = new THREE.Box3().setFromObject(obj);
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
-        // Mittelpunkt in die Geometrie einbrennen damit Klone zentriert sind
-        // OBJ-Namen (zaehne, bart, krallen, augen) bleiben erhalten
         obj.traverse(child => {
           if (child.isMesh) {
             child.geometry.translate(-center.x, -center.y, -center.z);
@@ -27,7 +32,11 @@ export function loadGotchiModel() {
         resolve();
       },
       undefined,
-      err => { console.error('OBJ Ladefehler:', err); reject(err); }
+      err => {
+        clearTimeout(giveUp);
+        console.warn('OBJ Ladefehler, Fallback aktiv:', err);
+        resolve();
+      }
     );
   });
 }
@@ -261,17 +270,19 @@ export function spawnGotchi(theme) {
   scene.add(refs.model);
 }
 
-export function hatchFirstGotchiIfNeeded() {
+export function hatchFirstGotchiIfNeeded(modelReady) {
   if (!webglRenderer) return;
 
   const storedTheme = localStorage.getItem(GOTCHI_THEME_STORAGE);
   const hasHatched = localStorage.getItem(GOTCHI_HATCHED_STORAGE) === '1';
 
   if (storedTheme && hasHatched && GOTCHI_THEMES.includes(storedTheme)) {
-    spawnGotchi(storedTheme);
+    // Bekannter Besucher: Modell spawnen sobald OBJ bereit ist
+    modelReady.then(() => spawnGotchi(storedTheme));
     return;
   }
 
+  // Erstbesuch: Ei sofort zeigen, OBJ lädt parallel
   refs.eggMesh = createEgg();
   scene.add(refs.eggMesh);
 
@@ -283,12 +294,15 @@ export function hatchFirstGotchiIfNeeded() {
     const theme = GOTCHI_THEMES[Math.floor(Math.random() * GOTCHI_THEMES.length)];
     localStorage.setItem(GOTCHI_THEME_STORAGE, theme);
     localStorage.setItem(GOTCHI_HATCHED_STORAGE, '1');
-    spawnGotchi(theme);
-    if (refs.model) {
-      refs.model.scale.multiplyScalar(0.65);
-      setTimeout(function () { applyLevelVisuals(); }, 260);
-    }
-    appendChatMessage(`🐣 Dein Ei ist geschlüpft! Dein erstes Gotchi ist vom Element ${theme}.`);
+    // Auf OBJ warten (sollte in 1.8s geladen sein), dann spawnen
+    modelReady.then(function () {
+      spawnGotchi(theme);
+      if (refs.model) {
+        refs.model.scale.multiplyScalar(0.65);
+        setTimeout(function () { applyLevelVisuals(); }, 260);
+      }
+      appendChatMessage(`🐣 Dein Ei ist geschlüpft! Dein erstes Gotchi ist vom Element ${theme}.`);
+    });
     refs.hatchTimeoutId = null;
   }, 1800);
 }
