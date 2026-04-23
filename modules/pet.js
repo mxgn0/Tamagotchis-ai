@@ -2,7 +2,7 @@ import { state } from './state.js';
 import { scene, refs, webglRenderer } from './renderer.js';
 import { appendChatMessage } from './ui.js';
 
-const MODEL_PATH = './models/ChiniPose01_07.obj';
+const MODEL_PATH = './models/ChiniPose01_08.obj';
 let loadedOBJ = null;
 let modelBaseScale = 1;
 
@@ -16,10 +16,10 @@ export function loadGotchiModel() {
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
         // Mittelpunkt in die Geometrie einbrennen damit Klone zentriert sind
+        // OBJ-Namen (zaehne, bart, krallen, augen) bleiben erhalten
         obj.traverse(child => {
           if (child.isMesh) {
             child.geometry.translate(-center.x, -center.y, -center.z);
-            child.name = 'gotchi-body';
           }
         });
         modelBaseScale = 2.5 / Math.max(size.x, size.y, size.z);
@@ -222,8 +222,25 @@ export function spawnGotchi(theme) {
 
   if (loadedOBJ) {
     refs.model = loadedOBJ.clone();
+    const accentMat = new THREE.MeshStandardMaterial({
+      color: palette.accent,
+      roughness: 0.5,
+      metalness: theme === 'Metall' ? 0.6 : 0.1
+    });
+    const teethMat = new THREE.MeshStandardMaterial({ color: 0xfff9e6, roughness: 0.9 });
+    const eyeMat   = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.3 });
+
     refs.model.traverse(child => {
-      if (child.isMesh) {
+      if (!child.isMesh) return;
+      const n = child.name.toLowerCase();
+      if (n.includes('zaehne')) {
+        child.material = teethMat;
+      } else if (n.includes('augen')) {
+        child.material = eyeMat;
+      } else if (n.includes('bart') || n.includes('krallen')) {
+        child.name = 'gotchi-accent';
+        child.material = accentMat;
+      } else {
         child.name = 'gotchi-body';
         child.material = mat;
       }
