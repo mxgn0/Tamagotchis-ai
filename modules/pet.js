@@ -2,6 +2,36 @@ import { state } from './state.js';
 import { scene, refs, webglRenderer } from './renderer.js';
 import { appendChatMessage } from './ui.js';
 
+const MODEL_PATH = './models/ChiniPose01_07.obj';
+let loadedOBJ = null;
+let modelBaseScale = 1;
+
+export function loadGotchiModel() {
+  return new Promise((resolve, reject) => {
+    const loader = new THREE.OBJLoader();
+    loader.load(
+      MODEL_PATH,
+      obj => {
+        const box = new THREE.Box3().setFromObject(obj);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        // Mittelpunkt in die Geometrie einbrennen damit Klone zentriert sind
+        obj.traverse(child => {
+          if (child.isMesh) {
+            child.geometry.translate(-center.x, -center.y, -center.z);
+            child.name = 'gotchi-body';
+          }
+        });
+        modelBaseScale = 2.5 / Math.max(size.x, size.y, size.z);
+        loadedOBJ = obj;
+        resolve();
+      },
+      undefined,
+      err => { console.error('OBJ Ladefehler:', err); reject(err); }
+    );
+  });
+}
+
 export const GOTCHI_THEME_STORAGE = 'gotchiTheme';
 export const GOTCHI_HATCHED_STORAGE = 'gotchiHasHatched';
 export const GOTCHI_THEMES = ['Feuer', 'Wasser', 'Erde', 'Luft', 'Metall'];
@@ -151,7 +181,7 @@ export function createGotchi(theme) {
 export function applyLevelVisuals() {
   if (!refs.model) return;
 
-  const levelScale = 1 + Math.min((state.level - 1) * 0.05, 0.6);
+  const levelScale = (1 + Math.min((state.level - 1) * 0.05, 0.6)) * modelBaseScale;
   refs.model.scale.set(levelScale, levelScale, levelScale);
 
   const oldAura = refs.model.getObjectByName('level-aura');
@@ -182,14 +212,34 @@ export function applyLevelVisuals() {
 
 export function spawnGotchi(theme) {
   if (refs.model) scene.remove(refs.model);
-  refs.model = createGotchi(theme);
-  if (state.baseColor) {
-    refs.model.traverse(function (child) {
-      if (child.isMesh && child.material && child.name === 'gotchi-body') {
-        child.material.color.set(state.baseColor);
+
+  const palette = THEME_COLORS[theme] || THEME_COLORS.Feuer;
+  const mat = new THREE.MeshStandardMaterial({
+    color: state.baseColor || palette.body,
+    roughness: 0.55,
+    metalness: theme === 'Metall' ? 0.5 : 0.1
+  });
+
+  if (loadedOBJ) {
+    refs.model = loadedOBJ.clone();
+    refs.model.traverse(child => {
+      if (child.isMesh) {
+        child.name = 'gotchi-body';
+        child.material = mat;
       }
     });
+  } else {
+    // Fallback: prozedurales Modell falls OBJ nicht geladen
+    refs.model = createGotchi(theme);
+    if (state.baseColor) {
+      refs.model.traverse(child => {
+        if (child.isMesh && child.name === 'gotchi-body') {
+          child.material.color.set(state.baseColor);
+        }
+      });
+    }
   }
+
   applyLevelVisuals();
   scene.add(refs.model);
 }

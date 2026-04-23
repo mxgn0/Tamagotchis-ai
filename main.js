@@ -2,7 +2,7 @@ import { state, loadState, saveState, saveStats } from './modules/state.js';
 import { initNotifications } from './modules/notifications.js';
 import { updateUI } from './modules/ui.js';
 import { animate, renderScene } from './modules/renderer.js';
-import { hatchFirstGotchiIfNeeded } from './modules/pet.js';
+import { loadGotchiModel, hatchFirstGotchiIfNeeded } from './modules/pet.js';
 import { startGameLoop, levelUp } from './modules/gameLoop.js';
 import { initAI } from './modules/ai.js';
 
@@ -19,7 +19,8 @@ if (Date.now() - state.lastActionTime > 36 * 60 * 60 * 1000) {
 // 3. UI mit geladenen Werten befüllen
 updateUI();
 
-// 4. 3D-Pet spawnen oder Ei-Schlupf-Sequenz starten
+// 4. OBJ-Modell laden, dann Pet spawnen (Fallback auf prozedurales Modell bei Fehler)
+await loadGotchiModel().catch(e => console.warn('OBJ nicht geladen, Fallback aktiv:', e));
 hatchFirstGotchiIfNeeded();
 
 // 5. Render-Loop starten
