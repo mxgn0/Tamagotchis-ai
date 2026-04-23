@@ -2,7 +2,7 @@ import { state } from './state.js';
 import { scene, refs, webglRenderer } from './renderer.js';
 import { appendChatMessage } from './ui.js';
 
-const MODEL_PATH = './models/ChiniPose01_07.obj';
+const MODEL_PATH = './models/ChiniPose01_06.obj';
 let loadedOBJ = null;
 let modelBaseScale = 1;
 
@@ -20,7 +20,7 @@ export function loadGotchiModel() {
             child.geometry.translate(-center.x, -center.y, -center.z);
           }
         });
-        modelBaseScale = 2.5 / Math.max(size.x, size.y, size.z);
+        modelBaseScale = 3.8 / Math.max(size.x, size.y, size.z);
         loadedOBJ = obj;
         resolve();
       },
