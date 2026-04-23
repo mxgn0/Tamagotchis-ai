@@ -60,12 +60,16 @@ export function createGotchi(theme) {
 
   const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
   eyeL.position.set(-0.3, 1.56, 0.73);
-  eyeL.add(Object.assign(new THREE.Mesh(glintGeo, glintMat), { position: new THREE.Vector3(0.04, 0.05, 0.09) }));
+  const glintL = new THREE.Mesh(glintGeo, glintMat);
+  glintL.position.set(0.04, 0.05, 0.09);
+  eyeL.add(glintL);
   group.add(eyeL);
 
   const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
   eyeR.position.set(0.3, 1.56, 0.73);
-  eyeR.add(Object.assign(new THREE.Mesh(glintGeo, glintMat), { position: new THREE.Vector3(0.04, 0.05, 0.09) }));
+  const glintR = new THREE.Mesh(glintGeo, glintMat);
+  glintR.position.set(0.04, 0.05, 0.09);
+  eyeR.add(glintR);
   group.add(eyeR);
 
   // Wangenröte
